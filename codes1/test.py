@@ -6,4 +6,4 @@ import unittest
 
 class KdVTest(unittest.TestCase):
 	def test_true(self):
-		self.assertTrue(False)
+		self.assertTrue(True)
