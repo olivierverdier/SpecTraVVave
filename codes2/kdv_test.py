@@ -16,9 +16,9 @@ eps = 0.1
 #Equation = Whitham
 #speed = eq.Whitham.speed()    #phase speed
 #u0 = eq.Whitham(N, L, speed).init_guess()    #-0.015-0.1*np.cos(x_nodes) # initial guess
-data = init_data.init_data(eq.Whitham(N, L, 1))
+data = init_data.init_data(eq.KDV1(N, L, 1))
 (u0, speed) = data.compute_init_guess()
-            
+x = eq.KDV1(N, L, speed).nodes             
             
             # solutions with given parameters
 
@@ -34,22 +34,23 @@ u = u0
 c = speed
 for i in range(10):
     #print i
-    c += -0.0025
+    c += 0.0025
     #if c < 0:
      #   break
-    wave = solver.solver(eq.Whitham(N, L, c), u)
+    wave = solver.solver(eq.KDV1(N, L, c), u)
     u = getattr(wave, solver_kind)()
     us.append(u)
 else:
     print 'not stopped at zero'
 
 print solver_kind, ' \n', u
-plot(eq.Whitham(N, L, speed).nodes, u0)
+plot(x, u0)
 aus = np.array(us)
 for i in range(10):
-    plot(eq.Whitham(N, L, speed).nodes, aus[i,:])
+    plot(x, aus[i,:])
     
 show()
-
-dyn = dynamic_code.dynamic_code(eq.Whitham(N, L, c), u)
-translated_wave = dyn.evolution()
+xx = np.arange(0, 2*L, L/N)
+dyn = dynamic_code.dynamic_code(eq.KDV1(N, L, c), u)
+uu = dyn.interpolation()
+t_wave = dyn.evolution(solution = uu)

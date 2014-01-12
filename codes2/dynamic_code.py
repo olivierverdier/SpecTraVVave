@@ -9,17 +9,12 @@ class dynamic_code(object):
     def __init__(self, Equation, wave):
         self.eq = Equation
         self.u = wave
-        
-    def evolution(self, dt = 0.002, periods = 1):
-        #dct = lambda x: scipy.fftpack.dct(x, norm='ortho')                 # short declaration of the dct and idct operators
-        
-        #idct = lambda x: scipy.fftpack.idct(x, norm='ortho')
-        
+
+    def interpolation(self):
         N = self.eq.size
         L = self.eq.length
         #p = 2 #self.eq.degree
         
-
         ww = math.sqrt(2/float(N)) * np.ones((N,1))
         ww[0,0] = math.sqrt(1/float(N))
 
@@ -39,15 +34,22 @@ class dynamic_code(object):
             uu[m] = 0
             for n in range(N):
                 uu[m] = uu[m] + ww[n]*Y[n]*np.cos(xx[m]*k[n])
-              
-        u = uu    
+        
+        return uu 
+        
+        
+    def evolution(self, solution, dt = 0.002, periods = 1):
+
+        u = solution    
+        NN = len(u) 
+        
         k = np.concatenate((np.arange(1, NN/2+1, 1), np.arange(1-NN/2, 0, 1)))
-        whitha = 1j*k*np.sqrt(np.tanh(k)/k)
-        whitham = np.concatenate(([0], whitha))
-        whitham[NN/2] = 0
+        kerne = 1j*k*self.eq.kernel(k) #np.sqrt(np.tanh(k)/k)
+        kernel = np.concatenate(([0], kerne))
+        kernel[NN/2] = 0
         k = np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
         
-        m = 0.5*dt*whitham
+        m = 0.5*dt*kernel
         d1 = (1-m)/(1+m)
         d1[NN/2] = 0
         d2 = -0.5*1j*dt*k/(1+m)
@@ -81,5 +83,5 @@ class dynamic_code(object):
             u = w
             t = t + dt
         
-        print 'The error for', periods,' periods is E = ', np.linalg.norm(u-uu)     
+        print 'The error for', periods,' periods is E = ', np.linalg.norm(u-solution)     
         return u

@@ -12,8 +12,9 @@ class init_data(object):
         idct = lambda x: scipy.fftpack.idct(x, norm='ortho')
 
         F         =     3/4                                                # f^(p)(0)/p! 
-        p         =     2                         #self.eq.degree
-        lin_op    =     self.eq.kernel                                     # Fourier multiplier function of the linear operator
+        p         =     self.eq.degree
+        k = np.arange(self.eq.size)
+        lin_op    =     self.eq.kernel(k)                                  # Fourier multiplier function of the linear operator
         c0        =     lin_op[1]                                          # bifurcation point in velocity
         Oper_A    =     np.diag(-c0 + lin_op)                              # diagonal matrix of the operator acting on xi_p on the LHS
         Oper_A[1,1]    = 1                                                 # the second diagonal element of the matrix is set to 1 in order to invert the matrix

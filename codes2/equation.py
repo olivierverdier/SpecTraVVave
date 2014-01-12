@@ -14,8 +14,9 @@ class Equation(object):
         self.nodes = self.compute_nodes()
         self.linear_operator = self.compute_linear_operator()
         self.matrix = self.compute_matrix()
-        self.kernel = self.compute_kernel()
-        
+        #self.kernel = self.compute_kernel()
+        self.degree = self.degree()
+
     def compute_matrix(self):
         return -self.velocity*np.eye(self.size) + self.linear_operator
 
@@ -34,18 +35,27 @@ class Equation(object):
 
     def residual(self, u): 
         return np.dot(self.matrix, u) + self.flux(u)
-
+    
+    def kernel(self, k):
+        return self.compute_kernel(k)
 
 class Whitham(Equation):
-    def compute_kernel(self):
-        ks = np.arange(1, self.size, dtype=float)
-        whitham  = np.concatenate( ([1], np.sqrt(1./ks*np.tanh(ks))))
+    def degree(self):
+        return 2    
+    
+    def compute_kernel(self,k):
+        if k[0] == 0:
+            k1 = k[1:]
+            whitham = np.concatenate( ([1], np.sqrt(1./k1*np.tanh(k1))))
+        else:    
+            whitham  = np.sqrt(1./k*np.tanh(k))
+        
         return whitham
         
     def compute_weights(self):
-        ks = np.arange(1, self.size, dtype=float)
+        ks = np.arange(self.size, dtype=float)
         ww = 2/self.size
-        weights = np.concatenate( ([1], np.sqrt(1./ks*np.tanh(ks))))*ww
+        weights = self.compute_kernel(ks)*ww
         weights[0] = 1/self.size
         return weights
         
@@ -99,16 +109,17 @@ class Whitham(Equation):
 ##############################################################################################################################
 class KDV(Equation):
     # The equation is :     -c*u + 3/4u^2 + (u + 1/6u")=0
+    def degree(self):
+        return 2
 
-    def compute_kernel(self):
-        ks = np.arange(self.size, dtype=float)
-        return 1.0-1.0/6*ks**2
+    def compute_kernel(self, k):
+        return 1.0-1.0/6*k**2
             
     def compute_weights(self):
         ks = np.arange(self.size, dtype=float)
         ww = 2/self.size
-        weights = (1.0-1.0/6*ks**2)*ww  
-        weights[0] = (1.0-1.0/6*ks[0]**2)*ww/2  
+        weights = self.compute_kernel(ks)*ww  
+        weights[0] = weights[0]/2  
         return weights
         
    # def compute_matrix(self):                                          
@@ -165,16 +176,17 @@ class KDV(Equation):
 ##############################################################################################################################
 class KDV1(Equation):
     # The equation is :     -c*u + 3/4u^3 + (u + 1/6u")=0
-    def compute_kernel(self):
-        ks = np.arange(self.size, dtype=float)
-        return 1.0-1.0/6*ks**2
-
+    def degree(self):
+        return 3
     
+    def compute_kernel(self, k):
+        return 1.0-1.0/6*k**2
+            
     def compute_weights(self):
         ks = np.arange(self.size, dtype=float)
         ww = 2/self.size
-        weights = (1.0-1.0/6*ks**2)*ww  
-        weights[0] = (1.0-1.0/6*ks[0]**2)*ww/2  
+        weights = self.compute_kernel(ks)*ww  
+        weights[0] = weights[0]/2  
         return weights
         
    # def compute_matrix(self):                                          
@@ -196,11 +208,11 @@ class KDV1(Equation):
 
     def flux(self, u):
         # This function returnes the f(u).
-        return 3/4*u**4  
+        return 3/4*u**3  
 
     def flux_prime(self, u):
         # This function returnes the df(u)/du.
-        return 3*u**3
+        return 9/4*u**2
 
     def lin_op(self):
         # The function takes the half of the period of wave and the grid number. 
