@@ -65,7 +65,9 @@ bifur.append(np.array([c2,a2]))
 #    plot(x, aus[i*2,:])
     
 show()
-#xx = np.arange(0, 2*L, L/N)
+
+#xx0 = np.arange(-L, L, L/N)
+#xx1 = np.arange(0, 2*L, L/N)
 #dyn = dynamic_code.dynamic_code(eq.KDV1(N, L, c), u)
-#uu = dyn.interpolation()
+#uu = dyn.interpolation(symm = 0)
 #t_wave = dyn.evolution(solution = uu)

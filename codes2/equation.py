@@ -16,6 +16,7 @@ class Equation(object):
         self.matrix = self.compute_matrix()
         #self.kernel = self.compute_kernel()
         self.degree = self.degree()
+        self.fluxCoef = self.flux_coefficient()
 
     def compute_matrix(self):
         return -self.velocity*np.eye(self.size) + self.linear_operator
@@ -42,6 +43,9 @@ class Equation(object):
 class Whitham(Equation):
     def degree(self):
         return 2    
+    
+    def flux_coefficient(self):
+        return 3/4
     
     def compute_kernel(self,k):
         if k[0] == 0:
@@ -112,6 +116,9 @@ class KDV(Equation):
     def degree(self):
         return 2
 
+    def flux_coefficient(self):
+        return 3/4
+
     def compute_kernel(self, k):
         return 1.0-1.0/6*k**2
             
@@ -179,6 +186,9 @@ class KDV1(Equation):
     def degree(self):
         return 3
     
+    def flux_coefficient(self):
+        return 3/4
+        
     def compute_kernel(self, k):
         return 1.0-1.0/6*k**2
             

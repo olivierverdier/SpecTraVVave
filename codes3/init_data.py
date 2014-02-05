@@ -3,6 +3,14 @@ from __future__ import division
 import numpy as np
 import scipy.fftpack 
 
+"""
+    Transforms the eqution 
+                    A*xi = -flux(xi)
+with the Discrete Cosine Transform and computes the first two elements of the cosine expansion
+for xi -- xi1 and xip, and for velocity c -- cp (or cp_1).
+    Operator A  = (-c0 + Fourier_Multiplier_Operator_L)
+    Vector   xi = surface elevation.
+"""
 class init_data(object):
     def __init__(self, Equation):
         self.eq = Equation
@@ -11,45 +19,51 @@ class init_data(object):
         dct = lambda x: scipy.fftpack.dct(x, norm='ortho')                 # short declaration of the dct and idct operators
         idct = lambda x: scipy.fftpack.idct(x, norm='ortho')
 
-        F         =     self.eq.fp                                                # f^(p)(0)/p! 
-        p         =     self.eq.degree
-        k = np.arange(self.eq.size)
-        lin_op    =     self.eq.kernel(k)                                  # Fourier multiplier function of the linear operator
-        c0        =     lin_op[1]                                          # bifurcation point in velocity
-        Oper_A    =     np.diag(-c0 + lin_op)                              # diagonal matrix of the operator acting on xi_p on the LHS
-        Oper_A[1,1]    = 1                                                 # the second diagonal element of the matrix is set to 1 in order to invert the matrix
-                                                                           # later this element will be multiplied by zero, and the effect will be balanced
-        xi1 = np.cos(self.eq.nodes)                                        # xi_1 which is always the cosine of x
-        norm = dct(xi1)[1]                                           # this norm is used to compute pure dct coefficients without weights of transformation
+        fluxCoef      =     self.eq.fluxCoef                # 1/p! * flux^(p)(0) 
+        fluxDegree    =     self.eq.degree                  # the degree of zeros of flux 
+        fourierFreqs  =     np.arange(self.eq.size)         # Fourier modes same as Fourier frequencies
+        fourierKernel =     self.eq.kernel(fourierFreqs)    # Fourier multiplier function of the linear operator
+        
+        c0            =     fourierKernel[1]                # bifurcation point in velocity        
+        operatorA     =     np.diag(-c0 + fourierKernel)    # diagonal matrix of the Fourier multiplier operator acting on xi_p on the LHS        
+        operatorA[1,1] = 1                                  # the second diagonal element of the matrix is set to 1 in order to invert the matrix
+                                                            # later this element will be multiplied by zero, and the effect will be balanced
+        
+        xi1 = np.cos(self.eq.nodes)                         # xi_1 which is always the cosine of x
+        dctFactor = dct(xi1)[1]                                # this factor is used to compute pure dct coefficients without weights of transformation
 
-        if p == 2:                                            # p = 2 is special case becasue xi2 != cos(x)
-            rhs_hat   =     -F*dct(xi1**p)                    # take the dct of the right-hand-side of the equation
-            rhs_hat[1] = 0                                    # actually it holds true, but this stands here as compensation b/w c1 and rhs_hat(1) to cancel the cos(x) terms  
-            xi2_hat = np.linalg.solve(Oper_A, rhs_hat)        # solving the equation in the Fourier domain
-            xi2 = idct(xi2_hat)                               # finding  the solution of the equation , the correction to velocity here is zero -> c1 = 0.
-            rhs_hat = -F*dct(p*xi1**(p-1)*xi2)                # computing next epsilon level of approximation to compute the c2
-            c2 = -rhs_hat[1]/norm                             # computing the corretion to the velocity.
-            init_guess = e*xi1 + e**p*xi2                     # declaring the initial guess for wave shape
-            init_velocity = c0 + e**p*c2                      # declaring the initial guess for the velocity
+        if fluxDegree == 2:                                 # fluxDegree = 2 is special case becasue xi2 != cos(x)
+            eqRHShat   =     -fluxCoef*dct(xi1**fluxDegree) # take the dct of the right-hand-side of the equation
+            eqRHShat[1] = 0                                 # actually it holds true, but this stands here as compensation 
+                                                            # b/w c1 and rhs_hat(1) to cancel the cos(x) terms  
+            
+            xi2hat = np.linalg.solve(operatorA, eqRHShat)   # solving the equation in the Fourier domain
+            
+            xi2 = idct(xi2hat)                              # finding  the solution of the equation , the correction to velocity here is zero -> c1 = 0.
+            
+            eqRHShat = -fluxCoef*dct(fluxDegree*xi1**(fluxDegree-1)*xi2)  # computing next epsilon level of approximation to compute the c2
+            c2 = -eqRHShat[1]/dctFactor                                   # computing the corretion to the velocity.
+            init_guess = e*xi1 + e**fluxDegree*xi2                        # declaring the initial guess for wave shape
+            init_velocity = c0 + e**fluxDegree*c2                         # declaring the initial guess for the velocity
 
-        if p > 2 and p%2 == 0:                               # p==even and > 2 CANNOT BE HANDLED AT THE MOMENT! 
-            rhs_hat   =     -F*dct(xi1**p)
-            rhs_hat[1] = 0
-            xip_hat = np.linalg.solve(Oper_A, rhs_hat)
-            xip = idct(xip_hat)
-            rhs_hat = -F*dct(p*xi1**p)                      # THIS HAS TO BE REVISED!
-            cp = -rhs_hat[1]/norm
-            init_guess = e*xi1 + e**p*xip
-            init_velocity = c0 + e**p*cp
+        if fluxDegree > 2 and fluxDegree%2 == 0:                         # fluxDegree==even and > 2 CANNOT BE HANDLED AT THE MOMENT! 
+            eqRHShat   =     -fluxCoef*dct(xi1**fluxDegree)
+            eqRHShat[1] = 0
+            xiphat = np.linalg.solve(operatorA, eqRHShat)
+            xip = idct(xiphat)
+            eqRHShat = -fluxCoef*dct(fluxDegree*xi1**fluxDegree)                      # THIS HAS TO BE REVISED!
+            cp = -eqRHShat[1]/dctFactor
+            init_guess = e*xi1 + e**fluxDegree*xip
+            init_velocity = c0 + e**fluxDegree*cp
             print "This case cannot be handled a the moment."
             
-        if p%2 == 1:                                         # in case p==odd there are fewer steps to compute the initial shape and velocity
-            rhs_hat   =     -F*dct(xi1**p)
-            cp_1 = -rhs_hat[1]/norm
-            rhs_hat[1] = 0
-            xip_hat = np.linalg.solve(Oper_A, rhs_hat)
-            xip = idct(xip_hat)
-            init_guess = e*xi1 + e**p*xip
-            init_velocity = c0 + e**(p-1)*cp_1
+        if fluxDegree%2 == 1:                                            # in case fluxDegree==odd there are fewer steps to compute the initial shape and velocity
+            eqRHShat   =     -fluxCoef*dct(xi1**fluxDegree)
+            cp_1 = -eqRHShat[1]/dctFactor
+            eqRHShat[1] = 0
+            xiphat = np.linalg.solve(operatorA, eqRHShat)
+            xip = idct(xiphat)
+            init_guess = e*xi1 + e**fluxDegree*xip
+            init_velocity = c0 + e**(fluxDegree-1)*cp_1
             
         return (init_guess, init_velocity)

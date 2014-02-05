@@ -25,8 +25,8 @@ class solver(object):
         u = self.guess
         N = self.equation.size
         
-        nav = navigation.navigation(c1, a1, c2, a2)
-        (c3, a3, alpha, beta, gamma) = nav.compute_line()                       # computing the init guess for (c, a) 
+        nav = navigation.navigation((c1, a1), (c2, a2))
+        (p3, ortho) = nav.compute_line()                       # computing the init guess for (c, a) 
         
         #ah = np.zeros(N); ah[0] = 1; ah[-1] = -1
         #ch = np.zeros(N)
@@ -47,7 +47,7 @@ class solver(object):
             av = np.hstack((av0,[-1,alpha]));      cv = np.hstack((cv0, [0, beta]))
             Matrix = np.hstack((Vmatrix, av.reshape(N+2,1), cv.reshape(N+2,1)))        # adding 2 columns
              
-            du = np.linalg.solve(Matrix, np.hstack((-self.equation.residual(u), [u[0] - u[-1] - a3, alpha*a3 + beta*c3 + gamma])) )
+            du = np.linalg.solve(Matrix, np.hstack((-self.equation.residual(u), [u[0] - u[-1] - pstar[1], ortho[1]*pstar[1] + ortho[0]*pstar[0]])) )
             
             unew = u + du[:-2]
             cnew = c3 + du[-1]

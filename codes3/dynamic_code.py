@@ -10,8 +10,8 @@ class dynamic_code(object):
         self.eq = Equation
         self.u = wave
 
-    def interpolation(self):
-        N = self.eq.size
+    def interpolation(self, symm = 1):                  # symm = 1 means that the branch is symmetric w.r.t. L
+        N = self.eq.size                                # symm = 0 means that the branch is symmetric w.r.t. 0
         L = self.eq.length
                 
         ww = math.sqrt(2/float(N)) * np.ones((N,1))
@@ -19,11 +19,13 @@ class dynamic_code(object):
 
         Y = np.zeros(N)
         Y = dct(self.u, norm='ortho')
-#        for n in range(N):
-#            if np.abs(Y[n]) < 1e-15:
-#                Y[n] = 0
-        
-        xx = np.arange(0, 2*L, L/N)
+        for n in range(N):
+            if np.abs(Y[n]) < 1e-15:
+                Y[n] = 0
+        if symm == 1:
+            xx = np.arange(0, 2*L, L/N)
+        else:
+            xx = np.arange(-L, L, L/N)
         k = range(N)
         NN = 2*N
 
