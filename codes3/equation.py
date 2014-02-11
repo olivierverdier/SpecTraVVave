@@ -13,10 +13,10 @@ class Equation(object):
         self.weights = self.compute_weights()
         self.nodes = self.compute_nodes()
         self.linear_operator = self.compute_linear_operator()
-        self.matrix = self.compute_matrix()         # 
-        self.degree = self.degree()                 # dergee of zeros of flux needed to compute the initial guess
-        self.fp = self.taylor_fp()                  # the value of the first nonzero coefficient of the flux's Taylor expansion
-        
+        self.matrix = self.compute_matrix()
+        self.degree = self.degree()
+        self.fluxCoef = self.flux_coefficient()
+
     def compute_matrix(self):
         return -self.velocity*np.eye(self.size) + self.linear_operator
 
@@ -39,13 +39,27 @@ class Equation(object):
     def kernel(self, k):
         return self.compute_kernel(k)
 
+    def frequencies(self):
+        return np.arange(self.size, dtype=float)
+
+    def image(self):
+        return self.kernel(self.frequencies())
+
+    def bifurcation_velocity(self):
+        return self.image()[1]
+
+    def shifted_kernel(self):
+        # note: the image method is called twice
+        return np.diag(-self.bifurcation_velocity() + self.image())
+
+
 class Whitham(Equation):
     def degree(self):
-        return 2  
-          
-    def taylor_fp(self):
+        return 2    
+    
+    def flux_coefficient(self):
         return 3/4
-        
+    
     def compute_kernel(self,k):
         if k[0] == 0:
             k1 = k[1:]
@@ -114,8 +128,8 @@ class KDV(Equation):
     # The equation is :     -c*u + 3/4u^2 + (u + 1/6u")=0
     def degree(self):
         return 2
-        
-    def taylor_fp(self):
+
+    def flux_coefficient(self):
         return 3/4
 
     def compute_kernel(self, k):
@@ -184,10 +198,10 @@ class KDV1(Equation):
     # The equation is :     -c*u + 3/4u^3 + (u + 1/6u")=0
     def degree(self):
         return 3
-        
-    def taylor_fp(self):
-        return 3/4
     
+    def flux_coefficient(self):
+        return 3/4
+        
     def compute_kernel(self, k):
         return 1.0-1.0/6*k**2
             

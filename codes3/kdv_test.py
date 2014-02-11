@@ -16,10 +16,10 @@ eps = 0.1
 #Equation = Whitham
 #speed = eq.Whitham.speed()    #phase speed
 #u0 = eq.Whitham(N, L, speed).init_guess()    #-0.015-0.1*np.cos(x_nodes) # initial guess
-data = init_data.init_data(eq.KDV1(N, L, 1))
+data = init_data.init_data(eq.KDV(N, L, 1))
 (u0, speed) = data.compute_init_guess()
 
-Eq = eq.KDV1(N, L, speed)
+Eq = eq.KDV(N, L, speed)
 x = Eq.nodes             
 deg = Eq.degree
             
@@ -38,8 +38,8 @@ c = speed
 a1 = u[0]-u[-1]; c1 = c
 bifur.append(np.array([c1,a1]))
 a2 = a1; c2 = c1;
-wave = solver.solver(eq.KDV1(N, L, c), u)
-(u, c, a) = wave.compute_newton(c1,a1,c2,a2) #getattr(wave, solver_kind)(c1,a1,c2,a2)
+wave = solver.solver(eq.KDV(N, L, c), u)
+(u, c, a) = wave.compute_newton(c1,a1,c2,a2) # getattr(wave, solver_kind)(c1,a1,c2,a2)
 a2 = a; c2 = c
 bifur.append(np.array([c2,a2]))
 #for i in range(1):

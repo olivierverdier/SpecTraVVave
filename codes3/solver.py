@@ -25,8 +25,8 @@ class solver(object):
         u = self.guess
         N = self.equation.size
         
-        nav = navigation.navigation((c1, a1), (c2, a2))
-        (p3, ortho) = nav.compute_line()                       # computing the init guess for (c, a) 
+        nav = navigation.Navigation((c1, a1), (c2, a2))
+        (pstar, ortho) = nav.compute_line()                       # computing the init guess for (c, a) 
         
         #ah = np.zeros(N); ah[0] = 1; ah[-1] = -1
         #ch = np.zeros(N)
@@ -44,18 +44,18 @@ class solver(object):
             Vmatrix = np.vstack((self.equation.Jacobian(u), ah, ch))                   # adding 2 rows from below to Jacobian
         
             av0 = np.zeros(N);                 cv0 = (-1)*np.ones(N)
-            av = np.hstack((av0,[-1,alpha]));      cv = np.hstack((cv0, [0, beta]))
+            av = np.hstack((av0,[-1,ortho[1]]));      cv = np.hstack((cv0, [0, ortho[0]]))
             Matrix = np.hstack((Vmatrix, av.reshape(N+2,1), cv.reshape(N+2,1)))        # adding 2 columns
              
             du = np.linalg.solve(Matrix, np.hstack((-self.equation.residual(u), [u[0] - u[-1] - pstar[1], ortho[1]*pstar[1] + ortho[0]*pstar[0]])) )
             
             unew = u + du[:-2]
-            cnew = c3 + du[-1]
-            anew = a3 + du[-2]
+            cnew = pstar[0] + du[-1]
+            anew = pstar[1] + du[-2]
             change = np.abs(du).max()
             u = unew
-            a3 = anew
-            c3 = cnew
+            pstar[0] = cnew
+            pstar[1] = anew
             print it
             if change < tol:             # Newton iterative solver for the obtained system of equations
                 break
@@ -64,4 +64,4 @@ class solver(object):
             print 'Iterations\' limit reached: 10000'
 
             
-        return (u, c3, a3)
+        return (u, pstar[1], pstar[1])
