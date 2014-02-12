@@ -9,6 +9,27 @@ import numpy as np
 import navigation
 from scipy.optimize import fsolve
 
+def compute_extended_jacobian(jacobian, ortho):
+    N = len(jacobian)
+    ah = np.zeros(N)
+    ah[0] = 1
+    ah[-1] = -1
+
+    ch = np.zeros(N)
+
+    # adding 2 rows from below to Jacobian
+    Vmatrix = np.vstack((jacobian, ah, ch))
+
+    av0 = np.zeros(N)
+    av = np.hstack((av0,[-1,ortho[1]]))
+
+    cv0 = (-1)*np.ones(N)
+    cv = np.hstack((cv0, [0, ortho[0]]))
+
+    # adding 2 columns
+    extended_jacobian = np.hstack((Vmatrix, av.reshape(N+2,1), cv.reshape(N+2,1)))
+    return extended_jacobian
+
 
 class solver(object):
     def __init__(self, Equation, guess):
@@ -20,7 +41,6 @@ class solver(object):
         return fsolve(self.equation.residual, self.guess, fprime=self.equation.Jacobian)
         # in the case of fsolve being slow, it is to be replaced by Newton method 
         
-    
     def compute_newton(self, c1, a1, c2, a2, tol=1e-12):
         u = self.guess
         N = self.equation.size
@@ -28,26 +48,12 @@ class solver(object):
         nav = navigation.Navigation((c1, a1), (c2, a2))
         (pstar, ortho) = nav.compute_line()                       # computing the init guess for (c, a) 
         
-        #ah = np.zeros(N); ah[0] = 1; ah[-1] = -1
-        #ch = np.zeros(N)
-        #Vmatrix = np.vstack((self.equation.Jacobian(u), ah, ch))                   # adding 2 rows from below to Jacobian
         
-        #av0 = np.zeros(N);                 cv0 = (-1)*np.ones(N)
-        #av = np.hstack((av0,[-1,alpha]));      cv = np.hstack((cv0, [0, beta]))
-        #Matrix = np.hstack((Vmatrix, av.reshape(N+2,1), cv.reshape(N+2,1)))        # adding 2 columns 
-        
-        for it in range(10000):
+        for it in xrange(10000):
 
-            #du = np.linalg.solve(self.equation.Jacobian(u),-self.equation.residual(u) )
-            ah = np.zeros(N); ah[0] = 1; ah[-1] = -1
-            ch = np.zeros(N)
-            Vmatrix = np.vstack((self.equation.Jacobian(u), ah, ch))                   # adding 2 rows from below to Jacobian
-        
-            av0 = np.zeros(N);                 cv0 = (-1)*np.ones(N)
-            av = np.hstack((av0,[-1,ortho[1]]));      cv = np.hstack((cv0, [0, ortho[0]]))
-            Matrix = np.hstack((Vmatrix, av.reshape(N+2,1), cv.reshape(N+2,1)))        # adding 2 columns
+            extended_jacobian = self.compute_extended_jacobian(self.equation.Jacobian(u), ortho)
              
-            du = np.linalg.solve(Matrix, np.hstack((-self.equation.residual(u), [u[0] - u[-1] - pstar[1], ortho[1]*pstar[1] + ortho[0]*pstar[0]])) )
+            du = np.linalg.solve(extended_jacobian, np.hstack((-self.equation.residual(u), [u[0] - u[-1] - pstar[1], ortho[1]*pstar[1] + ortho[0]*pstar[0]])) )
             
             unew = u + du[:-2]
             cnew = pstar[0] + du[-1]
