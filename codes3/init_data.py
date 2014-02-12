@@ -18,9 +18,18 @@ dct = functools.partial(scipy.fftpack.dct, norm='ortho')
 idct = functools.partial(scipy.fftpack.idct, norm='ortho')
 
 
-class InitData(object):
+class BasicInitData(object):
     def __init__(self, Equation):
         self.eq = Equation
+
+    def cosine(self):
+        return np.cos(self.eq.nodes)
+
+    def compute_init_guess(self, e=.1):
+        xi1 = self.cosine()
+        return e*xi1
+
+class InitData(BasicInitData):
 
     def compute_init_guess(self, e = 0.1):
 
@@ -33,7 +42,7 @@ class InitData(object):
         operatorA[1,1] = 1                                  # the second diagonal element of the matrix is set to 1 in order to invert the matrix
                                                             # later this element will be multiplied by zero, and the effect will be balanced
 
-        xi1 = np.cos(self.eq.nodes)                         # xi_1 which is always the cosine of x
+        xi1 = self.cosine()
 
         eqRHShat   =     -fluxCoef*dct(xi1**fluxDegree) # take the dct of the right-hand-side of the equation
         eqRHShat[1] = 0                                 # actually it holds true, but this stands here as compensation 
