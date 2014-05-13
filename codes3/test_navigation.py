@@ -16,16 +16,18 @@ def dummy_step_function(*args, **kwargs):
     return 1.
 
 class TestDummyNavigation(unittest.TestCase):
-    def test_main(self):
+    def test_ortho_direction(self):
         p0 = (0,0)
         p1 = (1,0)
         dp = (p1[0]-p0[0],p1[1]-p0[1])
         computed = ortho_direction(p0, p1, step=1)
         expected_pstar = (2, 0)
         computed_pstar = computed[0]
+        self.assertIsInstance(computed_pstar, tuple)
         npt.assert_allclose(computed_pstar, expected_pstar)
         expected_direction = (0,1)
         computed_direction = computed[1]
+        self.assertIsInstance(computed_direction, tuple)
         self.assertEqual(computed_direction[0]*dp[0] + computed_direction[1]*dp[1], 0)
 
     def test_stepper(self):
