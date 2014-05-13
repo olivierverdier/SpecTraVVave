@@ -3,18 +3,16 @@ from __future__ import division
 import numpy as np
 
     
-def compute_line(p1, p2, d = 1):
+def compute_line(p1, p2, step):
     """
-    Provide ortho, and pstar
-    such that the line on the bifurcation plane has equation
-        ortho*(p - p*) = 0
-
-    Returns: (pstar, ortho)
+    Return pstar such that
+        pstar = p2+(1+d)*(p2-p1)
     """
+    dp = np.array([p2[0] - p1[0], p2[1] - p1[1]])
+    # orthogonal direction
+    ortho = (-dp[1], dp[0])
     
-    ortho = np.array([p2[0] - p1[0], p2[1] - p1[1]])
-    if ortho[0] == 0 and ortho[1]==0:
-        ortho[1] = 1
-    
-    pstar = np.array([p2[0] + ortho[0]*d, p2[1] + ortho[1]*d])
+    pstar = np.array([p2[0] + dp[0]*step, p2[1] + dp[1]*step])
     return pstar, ortho
+
+
