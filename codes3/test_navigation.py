@@ -10,10 +10,8 @@ import itertools
 from navigation import *
 
 def dummy_solver(x, pstar, direction):
-    return x + 1., (pstar[0]+.5*direction[0], pstar[1]+.5*direction[1])
+    return x + 1., pstar
 
-def dummy_step_function(*args, **kwargs):
-    return 1.
 
 class TestDummyNavigation(unittest.TestCase):
     def test_ortho_direction(self):
@@ -30,14 +28,19 @@ class TestDummyNavigation(unittest.TestCase):
         self.assertIsInstance(computed_direction, tuple)
         self.assertEqual(computed_direction[0]*dp[0] + computed_direction[1]*dp[1], 0)
 
-    def test_stepper(self):
-        stepper = get_stepper(solver=dummy_solver, compute_line=ortho_direction, step_function=dummy_step_function)
-        print stepper(0., (0.,1.), (0., 2))
-
-    def test_iterator(self):
-        stepper = get_stepper(solver=dummy_solver, compute_line=ortho_direction, step_function=dummy_step_function)
-        iterator = get_iterator(0., (0.,1.), (0.,2.), stepper=stepper)
-        for val in itertools.islice(iterator, None, 5):
-            print val
+    def test_nav(self):
+        nav = Navigator(dummy_solver)
+        N = 20
+        x0 = 1.
+        nav.initialize(x0, (1.,0), (0.,0))
+        nav.run(N)
+        points = [a[0] for a in nav.store]
+        npt.assert_allclose(np.array(points), np.arange(N+1) + x0)
+        for (x, p2, p1), (x_,p2_,p1_) in zip(nav.store[:-1], nav.store[1:]):
+            self.assertEqual(p2, p1_) # parameter is properly passed at the next stage
+        py = [a[1][1] for a in nav.store]
+        npt.assert_allclose(np.array(py), 0.) # no move in the y direction because of our dummy solver
+        px = [a[2][0] for a in nav.store]
+        npt.assert_allclose(np.array(px), np.arange(N+1)) # steady move because of step function
 
 
