@@ -9,7 +9,7 @@ import numpy as np
 import navigation
 from scipy.optimize import fsolve
 
-def compute_extended_jacobian(jacobian, ortho):
+def compute_extended_jacobian(jacobian, ortho, u):
     N = len(jacobian)
     ah = np.zeros(N)
     ah[0] = 1
@@ -23,7 +23,7 @@ def compute_extended_jacobian(jacobian, ortho):
     av0 = np.zeros(N)
     av = np.hstack((av0,[-1,ortho[1]]))
 
-    cv0 = (-1)*np.ones(N)
+    cv0 = (-1)*u
     cv = np.hstack((cv0, [0, ortho[0]]))
 
     # adding 2 columns
@@ -36,14 +36,17 @@ class solver(object):
         self.guess = guess
         self.equation = Equation
 
+    def residual(self):
+        return residual = [self.equation.residual, np.dot(self.equation.parameters, navigation.Navigator(????))] 
+        
     def compute_fsolve(self):
-       
-        return fsolve(self.equation.residual, self.guess, fprime=self.equation.Jacobian)
+        
+        return fsolve(residual(), [self.guess, step])
         # in the case of fsolve being slow, it is to be replaced by Newton method 
         
     def compute_newton(self, c1, a1, c2, a2, tol=1e-12):
         u = self.guess
-        N = self.equation.size
+        # N = self.equation.size
         
         nav = navigation.Navigation((c1, a1), (c2, a2))
         (pstar, ortho) = nav.compute_line()                       # computing the init guess for (c, a) 
@@ -51,7 +54,7 @@ class solver(object):
         
         for it in xrange(10000):
 
-            extended_jacobian = self.compute_extended_jacobian(self.equation.Jacobian(u), ortho)
+            extended_jacobian = compute_extended_jacobian(self.equation.Jacobian(u), ortho, u)
              
             du = np.linalg.solve(extended_jacobian, np.hstack((-self.equation.residual(u), [u[0] - u[-1] - pstar[1], ortho[1]*pstar[1] + ortho[0]*pstar[0]])) )
             
@@ -62,7 +65,7 @@ class solver(object):
             u = unew
             pstar[0] = cnew
             pstar[1] = anew
-            print it
+            print it, change
             if change < tol:             # Newton iterative solver for the obtained system of equations
                 break
 
@@ -70,4 +73,4 @@ class solver(object):
             print 'Iterations\' limit reached: 10000'
 
             
-        return (u, pstar[1], pstar[1])
+        return (u, pstar[0], pstar[1])

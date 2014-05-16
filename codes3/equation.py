@@ -5,20 +5,21 @@ import math
 import numpy as np
 
 class Equation(object):
-    def __init__(self,  size, length, velocity):
-        self.velocity = velocity
+    def __init__(self,  size, length, parameters):
+#       self.velocity = velocity
         self.size = size
         self.length = length
-
+        self. parameters = parameters      # contains: [bifurcation velocity, wave amplitude]
+        
         self.weights = self.compute_weights()
         self.nodes = self.compute_nodes()
 
         self.linear_operator = self.compute_linear_operator()
 
         self.shifted_operator = self.compute_shifted_operator()
-
+         
     def compute_shifted_operator(self):
-        return -self.velocity*np.eye(self.size) + self.linear_operator
+        return (-1)*self.parameters[0]*np.eye(self.size) + self.linear_operator
 
     @classmethod
     def general_tensor(self, w, x, f):
@@ -36,14 +37,11 @@ class Equation(object):
     def residual(self, u): 
         return np.dot(self.shifted_operator, u) + self.flux(u)
     
-    def kernel(self, k):
-        return self.compute_kernel(k)
-
     def frequencies(self):
         return np.arange(self.size, dtype=float)
 
     def image(self):
-        return self.kernel(self.frequencies())
+        return self.compute_kernel(self.frequencies())
 
     def bifurcation_velocity(self):
         return self.image()[1]
@@ -56,8 +54,6 @@ class Equation(object):
         h = self.length/self.size
         nodes = np.arange(h/2.,self.length,h)
         return nodes
-
-
 
 class Whitham(Equation):
     def degree(self):
@@ -98,11 +94,6 @@ class Whitham(Equation):
         """
         return 3*(u+1)**(0.5)-3
 
-    @classmethod
-    def speed(self):
-        return 0.99*math.sqrt(math.tanh(1))
-            
-
 
 class KDV(Equation):
     """
@@ -133,16 +124,6 @@ class KDV(Equation):
 
     def flux_prime(self, u):
         return 1.5*u
-
-    @classmethod
-    def speed(self, e=0.1):
-        cstar = 1.0-1.0/6 #bifurcation point
-        c2 = -45./16 #2*(-0.375)*1.0/(1-cstar)      #second order term
-                #u1 = np.cos(self.nodes)
-                #u2 = np.linalg.solve(self.matrix, -self.flux(u1))
-                #c2 = 2*1/np.sqrt(self.size)*np.sum(u2)
-        return cstar + e*e*c2
-        #return (1-e)*cstar
 
 
 class KDV1(KDV):

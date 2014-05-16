@@ -16,12 +16,16 @@ eps = 0.1
 #Equation = Whitham
 #speed = eq.Whitham.speed()    #phase speed
 #u0 = eq.Whitham(N, L, speed).init_guess()    #-0.015-0.1*np.cos(x_nodes) # initial guess
-data = init_data.init_data(eq.KDV(N, L, 1))
-(u0, speed) = data.compute_init_guess()
+speed = eq.Whitham(N, L, [0, 0]).bifurcation_velocity()
+amplitude = 0.01
+initial_parameters = [speed, amplitude]
 
-Eq = eq.KDV(N, L, speed)
-x = Eq.nodes             
-deg = Eq.degree
+data = init_data.InitData(eq.Whitham(N, L, initial_parameters))
+u0 = data.compute_init_guess()
+
+
+x = eq.Whitham(N, L, initial_parameters).compute_nodes()             
+deg = eq.Whitham(N, L, initial_parameters).degree()
             
             # solutions with given parameters
 
@@ -35,13 +39,13 @@ print solver_kind
 # solution via Netwon method
 u = u0
 c = speed
-a1 = u[0]-u[-1]; c1 = c
-bifur.append(np.array([c1,a1]))
-a2 = a1; c2 = c1;
-wave = solver.solver(eq.KDV(N, L, c), u)
-(u, c, a) = wave.compute_newton(c1,a1,c2,a2) # getattr(wave, solver_kind)(c1,a1,c2,a2)
-a2 = a; c2 = c
-bifur.append(np.array([c2,a2]))
+#a1 = u[0]-u[-1]; c1 = c 
+#bifur.append(np.array([c1,a1]))
+#a2 = a1+0.002; c2 = c1 # + (-1)**(deg + 1)*0.0025;
+#wave = solver.solver(eq.KDV(N, L), u)
+#(u, c, a) = wave.compute_newton(c1,a1,c2,a2) # getattr(wave, solver_kind)(c1,a1,c2,a2)
+#a2 = a; c2 = c
+#bifur.append(np.array([c2,a2]))
 #for i in range(1):
     #print i
     #c += (-1)**(deg + 1)*0.0025
@@ -64,7 +68,7 @@ bifur.append(np.array([c2,a2]))
 #for i in range(10):
 #    plot(x, aus[i*2,:])
     
-show()
+#show()
 
 #xx0 = np.arange(-L, L, L/N)
 #xx1 = np.arange(0, 2*L, L/N)
