@@ -30,14 +30,40 @@ def compute_extended_jacobian(jacobian, ortho, u):
     extended_jacobian = np.hstack((Vmatrix, av.reshape(N+2,1), cv.reshape(N+2,1)))
     return extended_jacobian
 
+def compute_parameter(parameter, direction, extent):
+    """
+    Compute gamma_0 + theta * direction
+    """
+    return parameter + extent*direction
 
-class solver(object):
-    def __init__(self, Equation, guess):
-        self.guess = guess
-        self.equation = Equation
+class Solver(object):
+    def __init__(self, equation):
+        self.equation = equation
+
+    def construct(wave, extent):
+        return np.hstack([wave, extent])
+
+    def destruct(vector):
+        wave = vector[:-1]
+        extent = vector[-1]
+        return wave, extent
+
+    def solve(self, guess_wave, parameter_anchor, direction):
+        def residual(vector):
+            wave, extent = self.destruct(vector)
+            parameter = compute_parameter(parameter_anchor, direction, extent)
+            equation = self.equation.initialize(parameter)
+            main_residual = equation.residual(wave)
+            boundary_residual = get_boundary(wave, parameter)
+            return hstack([main_residual, boundary_residual])
+        wave, extent = self.destruct(fsolve(residual, self.construct(guess_wave, 0)))
+        new_parameter = compute_parameter(parameter_anchor, direction, extent)
+        return wave, new_parameter
 
     def residual(self):
-        return residual = [self.equation.residual, np.dot(self.equation.parameters, navigation.Navigator(????))] 
+        equation = equation_class(parameters)
+        ## return residual = [self.equation.residual, np.dot(self.equation.parameters, navigation.Navigator(????))] 
+        residual = [equation.residual(), equation.boundary()]
         
     def compute_fsolve(self):
         

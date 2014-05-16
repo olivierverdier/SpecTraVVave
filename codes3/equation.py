@@ -5,21 +5,22 @@ import math
 import numpy as np
 
 class Equation(object):
-    def __init__(self,  size, length, parameters):
+    def __init__(self,  size, length):
 #       self.velocity = velocity
         self.size = size
         self.length = length
-        self. parameters = parameters      # contains: [bifurcation velocity, wave amplitude]
         
         self.weights = self.compute_weights()
         self.nodes = self.compute_nodes()
 
         self.linear_operator = self.compute_linear_operator()
 
-        self.shifted_operator = self.compute_shifted_operator()
          
     def compute_shifted_operator(self):
         return (-1)*self.parameters[0]*np.eye(self.size) + self.linear_operator
+
+    def initialize(self, parameters):
+        self.parameters = parameters
 
     @classmethod
     def general_tensor(self, w, x, f):
@@ -32,10 +33,10 @@ class Equation(object):
         return np.sum(ten, axis=2)
         
     def Jacobian(self, u):
-        return self.shifted_operator + np.diag(self.flux_prime(u))
+        return self.compute_shifted_operator + np.diag(self.flux_prime(u))
 
     def residual(self, u): 
-        return np.dot(self.shifted_operator, u) + self.flux(u)
+        return np.dot(self.compute_shifted_operator, u) + self.flux(u)
     
     def frequencies(self):
         return np.arange(self.size, dtype=float)
@@ -54,6 +55,31 @@ class Equation(object):
         h = self.length/self.size
         nodes = np.arange(h/2.,self.length,h)
         return nodes
+
+    def compute_initial_guess(self, e=0.):
+
+        fluxCoef      =     self.fluxCoef                # 1/p! * flux^(p)(0) 
+        fluxDegree    =     self.degree                  # the degree of zeros of flux 
+
+        # move the following to the Equation class
+        operatorA     =     self.shifted_kernel()    # diagonal matrix of the Fourier multiplier operator acting on xi_p on the LHS        
+
+        operatorA[1,1] = 1                                  # the second diagonal element of the matrix is set to 1 in order to invert the matrix
+                                                            # later this element will be multiplied by zero, and the effect will be balanced
+
+        xi1 = self.cosine()
+
+        eqRHShat   =     -fluxCoef*dct(xi1**fluxDegree) # take the dct of the right-hand-side of the equation
+        eqRHShat[1] = 0                                 # actually it holds true, but this stands here as compensation 
+                                                        # b/w c1 and rhs_hat(1) to cancel the cos(x) terms  
+
+        xiphat = np.linalg.solve(operatorA, eqRHShat)   # solving the equation in the Fourier domain
+
+        xip = idct(xiphat)                              # finding  the solution of the equation , the correction to velocity here is zero -> c1 = 0.
+
+        init_guess = e*xi1 + e**fluxDegree*xip
+
+        return init_guess
 
 class Whitham(Equation):
     def degree(self):
