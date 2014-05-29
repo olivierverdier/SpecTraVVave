@@ -25,3 +25,6 @@ class TestGeneral(unittest.TestCase):
         nav.initialize(initial_guess, p, p0)
         nav.run(1)
         print nav.store[1]
+
+if __name__ == '__main__':
+    unittest.main()
