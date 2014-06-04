@@ -7,8 +7,10 @@ from __future__ import division
 
 import numpy as np
 import navigation
-from scipy.optimize import fsolve
 
+# various nonlinear solvesr
+from scipy.optimize import fsolve
+from newton import Newton
 
 
 def compute_parameter(parameter, direction, extent):
@@ -41,7 +43,8 @@ class Solver(object):
         
         guess = self.construct(guess_wave, 0)
         print residual(guess)
-        computed = fsolve(residual, guess)
+        nsolver = Newton(residual)
+        computed = nsolver.run(guess)
         wave, extent = self.destruct(computed)
         new_parameter = compute_parameter(parameter_anchor, direction, extent)
         
