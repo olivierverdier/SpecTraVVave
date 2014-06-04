@@ -22,9 +22,10 @@ class TestGeneral(unittest.TestCase):
         p1 = (initial_velocity, 0)
         epsilon = .1
         p0 = (initial_velocity, -epsilon)
-        nav.initialize(initial_guess, p, p0)
+        nav.initialize(initial_guess, p1, p0)
         nav.run(1)
         print nav.store[1]
 
 if __name__ == '__main__':
     unittest.main()
+#

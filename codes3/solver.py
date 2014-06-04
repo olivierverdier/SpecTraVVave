@@ -9,26 +9,7 @@ import numpy as np
 import navigation
 from scipy.optimize import fsolve
 
-def compute_extended_jacobian(jacobian, ortho, u):
-    N = len(jacobian)
-    ah = np.zeros(N)
-    ah[0] = 1
-    ah[-1] = -1
 
-    ch = np.zeros(N)
-
-    # adding 2 rows from below to Jacobian
-    Vmatrix = np.vstack((jacobian, ah, ch))
-
-    av0 = np.zeros(N)
-    av = np.hstack((av0,[-1,ortho[1]]))
-
-    cv0 = (-1)*u
-    cv = np.hstack((cv0, [0, ortho[0]]))
-
-    # adding 2 columns
-    extended_jacobian = np.hstack((Vmatrix, av.reshape(N+2,1), cv.reshape(N+2,1)))
-    return extended_jacobian
 
 def compute_parameter(parameter, direction, extent):
     """
@@ -49,17 +30,45 @@ class Solver(object):
         return wave, extent
 
     def solve(self, guess_wave, parameter_anchor, direction):
+        
         def residual(vector):
             wave, extent = self.destruct(vector)
-            parameter = compute_parameter(parameter_anchor, direction, extent)
+            parameter = compute_parameter( parameter_anchor , direction, extent)
             equation = self.equation.initialize(parameter)
             main_residual = equation.residual(wave)
-            boundary_residual = get_boundary(wave, parameter)
-            return hstack([main_residual, boundary_residual])
+            boundary_residual = equation.boundary(wave, parameter)
+            return np.hstack([main_residual, boundary_residual])
+        
         wave, extent = self.destruct(fsolve(residual, self.construct(guess_wave, 0)))
         new_parameter = compute_parameter(parameter_anchor, direction, extent)
+        
         return wave, new_parameter
+ 
 
+
+
+
+""" 
+    def compute_extended_jacobian(jacobian, ortho, u):
+    N = len(jacobian)
+    ah = np.zeros(N)
+    ah[0] = 1
+    ah[-1] = -1
+
+    ch = np.zeros(N)
+
+    # adding 2 rows from below to Jacobian
+    Vmatrix = np.vstack((jacobian, ah, ch))
+
+    av0 = np.zeros(N)
+    av = np.hstack((av0,[-1,ortho[1]]))
+
+    cv0 = (-1)*u
+    cv = np.hstack((cv0, [0, ortho[0]]))
+
+    # adding 2 columns
+    extended_jacobian = np.hstack((Vmatrix, av.reshape(N+2,1), cv.reshape(N+2,1)))
+    return extended_jacobian
     def residual(self):
         equation = equation_class(parameters)
         ## return residual = [self.equation.residual, np.dot(self.equation.parameters, navigation.Navigator(????))] 
@@ -68,8 +77,7 @@ class Solver(object):
     def compute_fsolve(self):
         
         return fsolve(residual(), [self.guess, step])
-        # in the case of fsolve being slow, it is to be replaced by Newton method 
-        
+        # in the case of fsolve being slow, it is to be replaced by Newton method       
     def compute_newton(self, c1, a1, c2, a2, tol=1e-12):
         u = self.guess
         # N = self.equation.size
@@ -100,3 +108,4 @@ class Solver(object):
 
             
         return (u, pstar[0], pstar[1])
+"""
