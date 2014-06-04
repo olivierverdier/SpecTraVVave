@@ -16,7 +16,7 @@ class TestGeneral(unittest.TestCase):
         length = np.pi
         equation = KDV(size, length)
         solver = Solver(equation)
-        nav = Navigator(solver)
+        nav = Navigator(solver.solve)
         initial_guess = equation.compute_initial_guess()
         initial_velocity = equation.bifurcation_velocity()
         p1 = (initial_velocity, 0)

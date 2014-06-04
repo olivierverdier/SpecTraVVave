@@ -21,10 +21,10 @@ class Solver(object):
     def __init__(self, equation):
         self.equation = equation
 
-    def construct(wave, extent):
+    def construct(self, wave, extent):
         return np.hstack([wave, extent])
 
-    def destruct(vector):
+    def destruct(self, vector):
         wave = vector[:-1]
         extent = vector[-1]
         return wave, extent
@@ -34,12 +34,15 @@ class Solver(object):
         def residual(vector):
             wave, extent = self.destruct(vector)
             parameter = compute_parameter( parameter_anchor , direction, extent)
-            equation = self.equation.initialize(parameter)
-            main_residual = equation.residual(wave)
-            boundary_residual = equation.boundary(wave, parameter)
+            self.equation.initialize(parameter)
+            main_residual = self.equation.residual(wave)
+            boundary_residual = self.equation.boundary(wave, parameter)
             return np.hstack([main_residual, boundary_residual])
         
-        wave, extent = self.destruct(fsolve(residual, self.construct(guess_wave, 0)))
+        guess = self.construct(guess_wave, 0)
+        print residual(guess)
+        computed = fsolve(residual, guess)
+        wave, extent = self.destruct(computed)
         new_parameter = compute_parameter(parameter_anchor, direction, extent)
         
         return wave, new_parameter
