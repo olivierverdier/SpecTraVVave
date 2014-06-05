@@ -17,7 +17,8 @@ def compute_parameter(parameter, direction, extent):
     """
     Compute gamma_0 + theta * direction
     """
-    return parameter + extent*direction
+    return (parameter[0] + extent*direction[0],
+            parameter[1] + extent*direction[1])
 
 class Solver(object):
     def __init__(self, equation):
@@ -42,7 +43,6 @@ class Solver(object):
             return np.hstack([main_residual, boundary_residual])
         
         guess = self.construct(guess_wave, 0)
-        print residual(guess)
         nsolver = Newton(residual)
         computed = nsolver.run(guess)
         wave, extent = self.destruct(computed)
