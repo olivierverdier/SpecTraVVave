@@ -61,8 +61,8 @@ class Equation(object):
         init_guess = e*xi1 
         return init_guess
 
-    def boundary(self, wave, parameters):
-        return parameters[1] - wave[0] + wave[-1]
+    def boundary(self, wave):
+        return self.parameters[1] - wave[0] + wave[-1]
 
 class Whitham(Equation):
     def degree(self):

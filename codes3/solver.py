@@ -38,7 +38,7 @@ class Solver(object):
             parameter = compute_parameter( parameter_anchor , direction, extent)
             self.equation.initialize(parameter)
             main_residual = self.equation.residual(wave)
-            boundary_residual = self.equation.boundary(wave, parameter)
+            boundary_residual = self.equation.boundary(wave)
             return np.hstack([main_residual, boundary_residual])
         
         guess = self.construct(guess_wave, 0)
