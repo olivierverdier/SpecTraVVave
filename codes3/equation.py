@@ -113,7 +113,7 @@ class Whitham(Equation):
         """
         Return the flux f(u)
         """
-        return 2*(u+1)**(1.5)-3*u-2
+        return 2*np.power(u+1, 1.5) - 3*u - 2
 
     def flux_prime(self, u):
         """
