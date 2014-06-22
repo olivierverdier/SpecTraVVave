@@ -23,14 +23,15 @@ class Equation(object):
         self.parameters = parameters
 
     @classmethod
-    def general_tensor(self, w, x, f):
-        tensor = np.dstack([wk*(f(k*x) * f(k*x).reshape(-1,1)) for k, wk in enumerate(w)])
-        return tensor
-
-    @classmethod
     def general_linear_operator(self, weights, nodes, f):
-        ten = self.general_tensor(weights, nodes, f)
-        return np.sum(ten, axis=2)
+        size = len(nodes)
+        linop = np.zeros([size, size])
+        for k,wk in enumerate(weights):
+            fk = f(k*nodes)
+            for i in range(size):
+                for j in range(size):
+                    linop[i,j] += wk * fk[i] * fk[j]
+        return linop
         
     def compute_linear_operator(self):
         return self.general_linear_operator(weights=self.weights, nodes=self.nodes, f=np.cos)
