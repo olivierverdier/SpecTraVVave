@@ -28,12 +28,12 @@ class Equation(object):
         return tensor
 
     @classmethod
-    def general_linear_operator(self, w, x, f):
-        ten = self.general_tensor(w, x, f)
+    def general_linear_operator(self, weights, nodes, f):
+        ten = self.general_tensor(weights, nodes, f)
         return np.sum(ten, axis=2)
         
     def compute_linear_operator(self):
-        return self.general_linear_operator(w=self.weights, x=self.nodes, f=np.cos)
+        return self.general_linear_operator(weights=self.weights, nodes=self.nodes, f=np.cos)
 
     def Jacobian(self, u):
         return self.compute_shifted_operator + np.diag(self.flux_prime(u))
