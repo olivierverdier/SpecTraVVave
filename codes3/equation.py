@@ -32,6 +32,9 @@ class Equation(object):
         ten = self.general_tensor(w, x, f)
         return np.sum(ten, axis=2)
         
+    def compute_linear_operator(self):
+        return self.general_linear_operator(w=self.weights, x=self.nodes, f=np.cos)
+
     def Jacobian(self, u):
         return self.compute_shifted_operator + np.diag(self.flux_prime(u))
 
@@ -88,8 +91,6 @@ class Whitham(Equation):
         return weights
         
 
-    def compute_linear_operator(self):
-        return self.general_linear_operator(w=self.weights, x=self.nodes, f=np.cos)
 
     def flux(self, u):
         """
@@ -125,8 +126,6 @@ class KDV(Equation):
         return weights
         
         
-    def compute_linear_operator(self):
-        return self.general_linear_operator(w=self.weights, x=self.nodes, f=np.cos)
 
     def flux(self, u):
         return 0.75*u**2  
