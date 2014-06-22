@@ -18,15 +18,24 @@ class HarnessEquation(object):
         computed = self.equation.flux_prime(u)
         npt.assert_allclose(computed, expected, rtol=1e-4)
 
+    def test_linop(self):
+        weights = self.equation.weights
+        f = np.cos
+        x = self.equation.nodes
+        tensor = np.dstack([wk*(f(k*x) * f(k*x).reshape(-1,1)) for k, wk in enumerate(weights)])
+        expected = np.sum(tensor, axis=2)
+        computed = self.equation.compute_linear_operator()
+        npt.assert_allclose(computed, expected)
+
 
 class TestKDV(HarnessEquation, unittest.TestCase):
     def setUp(self):
-        self.equation = KDV(1,1,1)
+        self.equation = KDV(8,1)
 
 class TestKDV1(HarnessEquation, unittest.TestCase):
     def setUp(self):
-        self.equation = KDV1(1,1,1)
+        self.equation = KDV1(8,1)
 
 class TestWhitham(HarnessEquation, unittest.TestCase):
     def setUp(self):
-        self.equation = Whitham(1,1,1)
+        self.equation = Whitham(8,1)
