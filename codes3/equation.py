@@ -56,7 +56,7 @@ class Equation(object):
         return self.compute_shifted_operator + np.diag(self.flux_prime(u))
 
     def residual(self, u): 
-        return np.dot(self.compute_shifted_operator(), u) + self.flux(u)
+        return np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u)
     
     def frequencies(self):
         return np.arange(self.size, dtype=float)
