@@ -3,17 +3,24 @@ from __future__ import division
 
 import math
 import numpy as np
+import numba
 
-def make_linear_operator(weights, fik):
+def _make_linear_operator(linop, weights, fik):
+    """
+    fik: array(n,k)
+    linop: array(n,n) of zeros
+    weights: array(k)
+    """
     size = len(fik)
-    linop = np.zeros([size, size])
-    for k,wk in enumerate(weights):
+    for k in range(len(weights)):
+        wk = weights[k]
         fk = fik[:,k]
         for i in range(size):
             for j in range(size):
                 linop[i,j] += wk * fk[i] * fk[j]
-    return linop
     
+_fast_make_linear_operator = numba.jit('void(f8[:,:], f8[:], f8[:,:])', nopython=True)(_make_linear_operator)
+
 class Equation(object):
     def __init__(self,  size, length):
 #       self.velocity = velocity
@@ -38,7 +45,8 @@ class Equation(object):
         size = len(nodes)
         ik = nodes.reshape(-1,1) * np.arange(len(weights))
         fik = f(ik) # should us dct instead
-        linop = make_linear_operator(weights, fik)
+        linop = np.zeros([size, size])
+        _fast_make_linear_operator(linop, weights, fik)
         return linop
         
     def compute_linear_operator(self):
