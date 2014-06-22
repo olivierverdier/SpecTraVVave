@@ -4,6 +4,16 @@ from __future__ import division
 import math
 import numpy as np
 
+def make_linear_operator(weights, fik):
+    size = len(fik)
+    linop = np.zeros([size, size])
+    for k,wk in enumerate(weights):
+        fk = fik[:,k]
+        for i in range(size):
+            for j in range(size):
+                linop[i,j] += wk * fk[i] * fk[j]
+    return linop
+    
 class Equation(object):
     def __init__(self,  size, length):
 #       self.velocity = velocity
@@ -23,18 +33,16 @@ class Equation(object):
         self.parameters = parameters
 
     @classmethod
-    def general_linear_operator(self, weights, nodes, f):
+    def general_linear_operator(self, weights, nodes):
+        f = np.cos
         size = len(nodes)
-        linop = np.zeros([size, size])
-        for k,wk in enumerate(weights):
-            fk = f(k*nodes)
-            for i in range(size):
-                for j in range(size):
-                    linop[i,j] += wk * fk[i] * fk[j]
+        ik = nodes.reshape(-1,1) * np.arange(len(weights))
+        fik = f(ik) # should us dct instead
+        linop = make_linear_operator(weights, fik)
         return linop
         
     def compute_linear_operator(self):
-        return self.general_linear_operator(weights=self.weights, nodes=self.nodes, f=np.cos)
+        return self.general_linear_operator(weights=self.weights, nodes=self.nodes)
 
     def Jacobian(self, u):
         return self.compute_shifted_operator + np.diag(self.flux_prime(u))
