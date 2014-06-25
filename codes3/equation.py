@@ -3,6 +3,23 @@ from __future__ import division
 
 import math
 import numpy as np
+import numba
+
+def _make_linear_operator(linop, weights, fik):
+    """
+    fik: array(n,k)
+    linop: array(n,n) of zeros
+    weights: array(k)
+    """
+    size = len(fik)
+    for k in range(len(weights)):
+        wk = weights[k]
+        fk = fik[:,k]
+        for i in range(size):
+            for j in range(size):
+                linop[i,j] += wk * fk[i] * fk[j]
+    
+_fast_make_linear_operator = numba.jit('void(f8[:,:], f8[:], f8[:,:])', nopython=True)(_make_linear_operator)
 
 class Equation(object):
     def __init__(self,  size, length):
@@ -23,20 +40,23 @@ class Equation(object):
         self.parameters = parameters
 
     @classmethod
-    def general_tensor(self, w, x, f):
-        tensor = np.dstack([wk*(f(k*x) * f(k*x).reshape(-1,1)) for k, wk in enumerate(w)])
-        return tensor
-
-    @classmethod
-    def general_linear_operator(self, w, x, f):
-        ten = self.general_tensor(w, x, f)
-        return np.sum(ten, axis=2)
+    def general_linear_operator(self, weights, nodes):
+        f = np.cos
+        size = len(nodes)
+        ik = nodes.reshape(-1,1) * np.arange(len(weights))
+        fik = f(ik) # should us dct instead
+        linop = np.zeros([size, size])
+        _fast_make_linear_operator(linop, weights, fik)
+        return linop
         
+    def compute_linear_operator(self):
+        return self.general_linear_operator(weights=self.weights, nodes=self.nodes)
+
     def Jacobian(self, u):
         return self.compute_shifted_operator + np.diag(self.flux_prime(u))
 
     def residual(self, u): 
-        return np.dot(self.compute_shifted_operator(), u) + self.flux(u)
+        return np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u)
     
     def frequencies(self):
         return np.arange(self.size, dtype=float)
@@ -88,14 +108,12 @@ class Whitham(Equation):
         return weights
         
 
-    def compute_linear_operator(self):
-        return self.general_linear_operator(w=self.weights, x=self.nodes, f=np.cos)
 
     def flux(self, u):
         """
         Return the flux f(u)
         """
-        return 2*(u+1)**(1.5)-3*u-2
+        return 2*np.power(u+1, 1.5) - 3*u - 2
 
     def flux_prime(self, u):
         """
@@ -125,8 +143,6 @@ class KDV(Equation):
         return weights
         
         
-    def compute_linear_operator(self):
-        return self.general_linear_operator(w=self.weights, x=self.nodes, f=np.cos)
 
     def flux(self, u):
         return 0.75*u**2  

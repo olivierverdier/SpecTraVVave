@@ -10,7 +10,7 @@ import navigation
 
 # various nonlinear solvesr
 from scipy.optimize import fsolve
-from newton import Newton
+import newton
 
 
 def compute_parameter(parameter, direction, extent):
@@ -43,7 +43,7 @@ class Solver(object):
             return np.hstack([main_residual, boundary_residual])
         
         guess = self.construct(guess_wave, 0)
-        nsolver = Newton(residual)
+        nsolver = newton.MultipleSolver(residual)
         computed = nsolver.run(guess)
         wave, extent = self.destruct(computed)
         new_parameter = compute_parameter(parameter_anchor, direction, extent)
