@@ -1,7 +1,5 @@
-# -*- coding: UTF-8 -*-
 from __future__ import division
 
-import math
 import numpy as np
 import numba
 
@@ -23,7 +21,6 @@ _fast_make_linear_operator = numba.jit('void(f8[:,:], f8[:], f8[:,:])', nopython
 
 class Equation(object):
     def __init__(self,  size, length):
-#       self.velocity = velocity
         self.size = size
         self.length = length
         
@@ -33,10 +30,10 @@ class Equation(object):
         self.linear_operator = self.compute_linear_operator()
 
          
-    def compute_shifted_operator(self):                                             # gives the (-c*I + L) operator of the equation
+    def compute_shifted_operator(self):                                             
         return (-1)*self.parameters[0]*np.eye(self.size) + self.linear_operator
 
-    def initialize(self, parameters):                                               # needed to initialize the equation with required parameters (c,a)
+    def initialize(self, parameters):                                               
         self.parameters = parameters
 
     @classmethod
@@ -44,7 +41,7 @@ class Equation(object):
         f = np.cos
         size = len(nodes)
         ik = nodes.reshape(-1,1) * np.arange(len(weights))
-        fik = f(ik) # should us dct instead
+        fik = f(ik) 
         linop = np.zeros([size, size])
         _fast_make_linear_operator(linop, weights, fik)
         return linop
@@ -68,7 +65,6 @@ class Equation(object):
         return self.image()[1]
 
     def shifted_kernel(self):
-        # note: the image method is called twice
         return np.diag(-self.bifurcation_velocity() + self.image())
 
     def compute_nodes(self):
@@ -107,21 +103,32 @@ class Whitham(Equation):
         weights[0] = 1/self.size
         return weights
         
-
-
     def flux(self, u):
-        """
-        Return the flux f(u)
-        """
-        return 2*np.power(u+1, 1.5) - 3*u - 2
+        return 0.75*u**2  
 
     def flux_prime(self, u):
-        """
-        Derivative of the flux
-        """
-        return 3*(u+1)**(0.5)-3
+        return 1.5*u
 
+class Whitham3(Whitham):
+    def degree(self):
+        return 3  
+        
+    def flux(self, u):
+        return 0.5*u**3  
 
+    def flux_prime(self, u):
+        return 1.5*u**2
+        
+class Whitham5(Whitham):
+    def degree(self):
+        return 5
+          
+    def flux(self, u):
+        return 0.5*u**5  
+
+    def flux_prime(self, u):
+        return 1.5*u**4
+        
 class KDV(Equation):
     """
     The equation is :     -c*u + 3/4u^2 + (u + 1/6u")=0
@@ -142,7 +149,52 @@ class KDV(Equation):
         weights[0] = weights[0]/2  
         return weights
         
+    def flux(self, u):
+        return 0.75*u**2  
+
+    def flux_prime(self, u):
+        return 1.5*u
+
+class KDV3 (KDV):
+    def degree(self):
+        return 3
+          
+    def flux(self, u):
+        return 0.5*u**3  
+
+    def flux_prime(self, u):
+        return 1.5*u**2
+
+class KDV5 (KDV):
+    def degree(self):
+        return 5
+          
+    def flux(self, u):
+        return 0.5*u**5  
+
+    def flux_prime(self, u):
+        return 1.5*u**4
         
+class Kawahara (Equation):
+    """
+    The equation is :     -c*u + 3/4u^2 + (u - 1/2*kp*u" + 1/90*u'''')=0
+    """
+    def degree(self):
+        return 2
+
+    def flux_coefficient(self):
+        return 3/4
+
+    def compute_kernel(self, k):
+        kp = 1
+        return 1.0+0.5*kp*k**2 + 1.0/90*k**4
+            
+    def compute_weights(self):
+        ks = np.arange(self.size, dtype=float)
+        ww = 2/self.size
+        weights = self.compute_kernel(ks)*ww  
+        weights[0] = weights[0]/2  
+        return weights
 
     def flux(self, u):
         return 0.75*u**2  
@@ -150,15 +202,12 @@ class KDV(Equation):
     def flux_prime(self, u):
         return 1.5*u
 
-
-class KDV1(KDV):
-    # The equation is :     -c*u + 3/4u^3 + (u + 1/6u")=0
+class Whithamsqrt (Whitham):
     def degree(self):
-        return 3
-    
+        return 1.5
+ 
     def flux(self, u):
-        return 0.75*u**3  
+        return 2*np.power(u+1, 1.5) - 3*u - 2
 
     def flux_prime(self, u):
-        return 2.25*u**2
-
+        return 3*(u+1)**(0.5)-3

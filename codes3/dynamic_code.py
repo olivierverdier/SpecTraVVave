@@ -5,12 +5,13 @@ import numpy as np
 from scipy.fftpack import fft, ifft, dct 
 
 
-class dynamic_code(object):
-    def __init__(self, Equation, wave):
+class Dynamic_code(object):
+    def __init__(self, Equation, wave, velocity):
         self.eq = Equation
         self.u = wave
+        self.velocity = velocity
 
-    def interpolation(self, symm = 1):                  # symm = 1 means that the branch is symmetric w.r.t. L
+    def interpolation(self, symm = 0):                  # symm = 1 means that the branch is symmetric w.r.t. L
         N = self.eq.size                                # symm = 0 means that the branch is symmetric w.r.t. 0
         L = self.eq.length
                 
@@ -36,16 +37,15 @@ class dynamic_code(object):
             for n in range(N):
                 uu[m] = uu[m] + ww[n]*Y[n]*np.cos(xx[m]*k[n])
         
-        return uu 
-        
-        
+        return uu
+              
     def evolution(self, solution, dt = 0.001, periods = 1):
 
         u = solution    
         NN = len(u) 
         
         k = np.concatenate((np.arange(1, NN/2+1, 1), np.arange(1-NN/2, 0, 1)))
-        kerne = 1j*k*self.eq.kernel(k) 
+        kerne = 1j*k*self.eq.compute_kernel(k) 
         kernel = np.concatenate(([0], kerne))
         kernel[NN/2] = 0
         k = np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
@@ -55,12 +55,11 @@ class dynamic_code(object):
         d1[NN/2] = 0
         d2 = -0.5*1j*dt*k/(1+m)
         
-        T = 2*self.eq.length/self.eq.velocity
+        T = 2*self.eq.length/self.velocity
         eps = 1e-10
         t = dt
         it = 0
-        
-        while t < periods*T:
+        while t < periods*T+dt:
             fftu = fft(u)
             fftuu = fft(self.eq.flux(u))
             z = d1*fftu + d2*fftuu
@@ -83,6 +82,5 @@ class dynamic_code(object):
                 
             u = w
             t = t + dt
-        
         print 'The error for', periods,' periods is E = ', np.linalg.norm(u-solution)     
         return u
