@@ -75,10 +75,10 @@ class Equation(object):
     def compute_initial_guess(self, e=0.01):
         xi1 = np.cos(self.nodes)
         init_guess = e*xi1 
-        return init_guess
+        return np.hstack([init_guess, 0 ])
 
     def boundary(self, wave):
-        return self.parameters[1] - wave[0] + wave[-1]
+        return self.parameters[1] - wave[0] + wave[-2]
 
 class Whitham(Equation):
     def degree(self):
