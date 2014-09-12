@@ -25,7 +25,8 @@ class Navigator(object):
         Creates a list for solutions and stores the first solution (initial guess).
         """
         self.store = []
-        self.store.append((current, p, p0))
+        variables = [0]
+        self.store.append((current, variables, p, p0))
 
     def parameter_step(self):
         """
@@ -44,7 +45,7 @@ class Navigator(object):
         Iterates the solver N times, navigating over the bifurcation brach and storing found solutions.
         """
         for i in range(N):
-            current, p2, p1 = self.store[-1]
+            current, variables, p2, p1 = self.store[-1]
             pstar, direction = self.compute_direction(p1, p2)
-            new, p3 = self.solve(current, pstar, direction)
-            self.store.append((new, p3, p2))
+            new, variables, p3 = self.solve(current, pstar, direction)
+            self.store.append((new, variables, p3, p2))

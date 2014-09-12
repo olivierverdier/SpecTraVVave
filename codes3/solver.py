@@ -22,19 +22,21 @@ class Solver(object):
         self.equation = equation
         self.boundary = boundary
 
-    def construct(self, wave, extent):
+    def construct(self, wave, variables, extent):
         """
         Attaches the solution wave and extent parameter together for further computation.
         """
-        return np.hstack([wave, extent])
+        return np.hstack([wave, variables, extent])
 
     def destruct(self, vector):
         """
         Separates the solution wave and the extent parameter.
         """
-        wave = vector[:-1]
+        n = self.boundary.variables_num()
+        wave = vector[:-(1+n)]
+        variables = vector[-(1+n):-1]
         extent = vector[-1]
-        return wave, extent
+        return wave, variables, extent
 
     def solve(self, guess_wave, parameter_anchor, direction):
         """
@@ -45,17 +47,17 @@ class Solver(object):
             Contructs a system of nonlinear equations. First part, main_residual, is from given wave equation; 
             second part, boundary_residual, comes from the chosen boundary conditions.
             """
-            wave, extent = self.destruct(vector)
-            parameter = compute_parameter(parameter_anchor , direction, extent)
+            wave, variables, extent = self.destruct(vector)
+            parameter = compute_parameter(parameter_anchor, direction, extent)
             self.equation.initialize(parameter)
-            boundary_residual = self.boundary(wave, parameter)
-            main_residual = self.equation.residual(wave[:-1])
+            boundary_residual = self.boundary.enforce(wave, variables, parameter)
+            main_residual = self.equation.residual(wave)
             return np.hstack([main_residual, boundary_residual])
         
-        guess = self.construct(guess_wave, 0)
+        guess = self.construct(guess_wave, np.zeros(self.boundary.variables_num()), 0)
         nsolver = newton.MultipleSolver(residual)
         computed = nsolver.run(guess)
-        wave, extent = self.destruct(computed)
+        wave, variables, extent = self.destruct(computed)
         new_parameter = compute_parameter(parameter_anchor, direction, extent)
         
-        return wave, new_parameter
+        return wave, variables, new_parameter

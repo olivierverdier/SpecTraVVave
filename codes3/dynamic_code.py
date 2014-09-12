@@ -5,14 +5,22 @@ import numpy as np
 from scipy.fftpack import fft, ifft, dct 
 
 
-class Dynamic_code(object):
+class Trapezoidal_rule(object):
+    """
+    Dynamic integrator based on trapezoidal rule, 2nd order precision in dt (Li, Sattinger, 1998).  
+    """
     def __init__(self, Equation, wave, velocity):
         self.eq = Equation
         self.u = wave
         self.velocity = velocity
 
-    def interpolation(self, symm = 0):                  # symm = 1 means that the branch is symmetric w.r.t. L
-        N = self.eq.size                                # symm = 0 means that the branch is symmetric w.r.t. 0
+    def interpolation(self, symm = 0):                  
+        """
+        Uses dct to create a symmetric image of the given solution wave
+        and contruct a full wave profile. Parameter symm = 0 means that the branch is symmetric w.r.t. x = 0; 
+        symm = 1 yields a branch symmetric w.r.t. x = L.
+        """
+        N = self.eq.size                                
         L = self.eq.length
                 
         ww = math.sqrt(2/float(N)) * np.ones((N,1))
@@ -40,7 +48,10 @@ class Dynamic_code(object):
         return uu
               
     def evolution(self, solution, dt = 0.001, periods = 1):
-
+        """
+        The main body of the integrator's code. Takes full wave profile as input. Returns the result of integration of the
+        given equation with input as the initial value. 
+        """
         u = solution    
         NN = len(u) 
         
@@ -86,12 +97,18 @@ class Dynamic_code(object):
         return u
 
 
-class Defrutos_sanzserna(Dynamic_code):
-
-    def multipliers(self, dt = 0.001):
+class DeFrutos_SanzSerna(Trapezoidal_rule):
+    """
+    4th order dynamic integrator based on the method of de Frutos and Sanz-Serna (1992).
+    """
+    def multipliers(self, timestep = 0.001):
+        """
+        Constructs operators used in integration.
+        """
         beta = ( 2 + 2**(1/3) + 2**(-1/3) )/3
         N = 2*self.eq.size
         p = self.eq.degree()-1
+        dt = timestep
         
         k = np.concatenate((np.arange(1, N/2+1, 1), np.arange(1-N/2, 0, 1)))
         kerne = 1j*k*self.eq.compute_kernel(k) 
@@ -107,11 +124,24 @@ class Defrutos_sanzserna(Dynamic_code):
         
         return m1, m2, mm1, mm2
     
-    def iterate(self, fftvector, coeffs1, coeffs2, p):
+    def iterate1(self, fftvector, coeffs1, coeffs2, p):
+        """
+        Used in the first step of integration.
+        """
         Z = fftvector
         LP = coeffs1*fftvector
         for j in range(5):
-            Z = LP - coeffs2*( fft( ifft(Z).real**(p+1) )  )        
+            Z = LP - coeffs2*( fft( np.power(ifft(Z).real, p+1 ) )  )        
+        return 2*Z-fftvector
+    
+    def iterate3(self, fftvector, coeffs1, coeffs2, Q, p):
+        """
+        Used in the third step of integration.
+        """
+        Z = .5*( fftvector + Q )   
+        LP = coeffs1*fftvector
+        for j in range(2):
+            Z = LP - coeffs2*( fft( np.power(ifft(Z).real, p+1 ) )  )        
         return 2*Z-fftvector
         
     def integrator(self, wave_profile, m1, m2, mm1, mm2):
@@ -123,9 +153,9 @@ class Defrutos_sanzserna(Dynamic_code):
         #  ---------- STEP ONE ------------ #
 
         Y = fft(u)
-        Y = self.iterate(Y, m1, m2, p)
-        Y = self.iterate(Y, mm1, mm2, p)        
-        Y = self.iterate(Y, m1, m2, p)
+        Y = self.iterate1(Y, m1, m2, p)
+        Y = self.iterate1(Y, mm1, mm2, p)        
+        Y = self.iterate1(Y, m1, m2, p)
         unew = ifft( Y ).real
         
         #  ---------- STEP TWO ------------ #                                     
@@ -134,21 +164,20 @@ class Defrutos_sanzserna(Dynamic_code):
         Z = .5*( (2 + beta)*Y - beta*fft(u) )
         LP = m1*Y                                                                                                                    
         for j in range(5):
-            Z = LP - m2*( fft( ifft(Z).real**(p+1) )  )
+            Z = LP - m2*( fft( np.power(ifft(Z).real, p+1 ) )  )
         
         Z = .5*( Y + (2-beta)*fft(unew) - (1-beta)*fft(u) )
         LP = mm1*Y                                                                                                                                                                                                                                                                                                                                                            
         for j in range(5):
-            Z = LP - mm2*( fft( ifft(Z).real**(p+1) )  )
+            Z = LP - mm2*( fft( np.power(ifft(Z).real, p+1 ) )  )
     
         Y = 2*Z - Y
         Z = .5*( Y + 2*fft(unew) - fft(u) )
         LP = m1*Y
         for j in range(5):
-            Z = LP - m2*( fft( ifft(Z).real**(p+1) )  )
+            Z = LP - m2*( fft( np.power(ifft(Z).real, p+1 ) )  )
     
-        uold = u
-        u = unew
+        uold = u; u = unew
         unew = ifft( 2*Z - Y ).real
     
         #  ---------- STEP THREE ------------ #
@@ -161,35 +190,22 @@ class Defrutos_sanzserna(Dynamic_code):
         Q3 = fft(uold - 3*u + 3*unew)
             
         Y = fft(unew)
-        Z = .5*( Y + Q1 )
-        LP = m1*Y
-        for k in range(2):
-            Z = LP - m2*( fft( ifft(Z).real**(p+1) )  )
-            
-        Y = 2*Z - Y
-        Z = .5*( Y + Q2 )
-        LP = mm1*Y
-        for k in range(2):
-            Z = LP - mm2*( fft( ifft(Z).real**(p+1) )  )
-    
-        Y = 2*Z - Y
-        Z = .5*( Y + Q3 )
-        LP = m1*Y
-        for k in range(2):
-            Z = LP - m2*( fft( ifft(Z).real**(p+1) )  )
-    
+        Y = self.iterate3(Y, m1, m2, Q1, p)
+        Y = self.iterate3(Y, mm1, mm2, Q2, p)
+        Y = self.iterate3(Y, m1, m2, Q3, p)
+        
         uold = u; u = unew
-        unew = ifft( 2*Z - Y ).real
+        unew = ifft( Y ).real
         
         u = unew
         return u
     
-    def evolution(self, solution, dt = 0.02, periods = 1):
+    def evolution(self, solution, dt = 0.001, periods = 1):
         u = solution    
               
         T = 2*self.eq.length/self.velocity
         t = dt
-        m1, m2, mm1, mm2 = self.multipliers(dt=dt)
+        m1, m2, mm1, mm2 = self.multipliers(timestep=dt)
         while t < periods*T+dt:
             w = self.integrator(wave_profile = u, m1=m1, m2=m2, mm1=mm1, mm2=mm2)
             u = w
