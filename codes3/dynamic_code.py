@@ -133,6 +133,15 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         for j in range(5):
             Z = LP - coeffs2*( fft( np.power(ifft(Z).real, p+1 ) )  )        
         return 2*Z-fftvector
+        
+    def iterate2(self, fftvector, Z, coeffs1, coeffs2, p):
+        """
+        Used in the second step of integration.
+        """
+        LP = coeffs1*fftvector
+        for j in range(5):
+            Z = LP - coeffs2*( fft( np.power(ifft(Z).real, p+1 ) )  )        
+        return 2*Z-fftvector
     
     def iterate3(self, fftvector, coeffs1, coeffs2, Q, p):
         """
@@ -160,25 +169,18 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         
         #  ---------- STEP TWO ------------ #                                     
                                                                   
-        Y = fft(unew)                                                                                                
+        Y = fft(unew)                                                                                                        
         Z = .5*( (2 + beta)*Y - beta*fft(u) )
-        LP = m1*Y                                                                                                                    
-        for j in range(5):
-            Z = LP - m2*( fft( np.power(ifft(Z).real, p+1 ) )  )
-        
+       
+        Y = self.iterate2(Y, Z, m1, m2, p)                      
         Z = .5*( Y + (2-beta)*fft(unew) - (1-beta)*fft(u) )
-        LP = mm1*Y                                                                                                                                                                                                                                                                                                                                                            
-        for j in range(5):
-            Z = LP - mm2*( fft( np.power(ifft(Z).real, p+1 ) )  )
-    
-        Y = 2*Z - Y
+        Y = self.iterate2(Y, Z, mm1, mm2, p)
+        
         Z = .5*( Y + 2*fft(unew) - fft(u) )
-        LP = m1*Y
-        for j in range(5):
-            Z = LP - m2*( fft( np.power(ifft(Z).real, p+1 ) )  )
+        Y = self.iterate2(Y, Z, m1, m2, p)
     
         uold = u; u = unew
-        unew = ifft( 2*Z - Y ).real
+        unew = ifft( Y ).real
     
         #  ---------- STEP THREE ------------ #
     
