@@ -37,23 +37,28 @@ class Equation(object):
         self.parameters = parameters
 
     @classmethod
-    def general_linear_operator(self, weights, nodes):
+    def general_linear_operator(self, weights, nodes, length):
         f = np.cos
         size = len(nodes)
-        ik = nodes.reshape(-1,1) * np.arange(len(weights))
+        ik = np.pi/length * nodes.reshape(-1,1) * np.arange(len(weights))
         fik = f(ik) 
         linop = np.zeros([size, size])
         _fast_make_linear_operator(linop, weights, fik)
         return linop
         
     def compute_linear_operator(self):
-        return self.general_linear_operator(weights=self.weights, nodes=self.nodes)
+        return self.general_linear_operator(weights=self.weights, nodes=self.nodes, length = self.length)
 
     def Jacobian(self, u):
         return self.compute_shifted_operator + np.diag(self.flux_prime(u))
 
-    def residual(self, u): 
-        return np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u)
+    def residual(self, u, integrconst): 
+        return np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u) - integrconst
+
+    def residual1(self, u): 
+        residual1 = np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u)
+        residual = residual1[:-1]
+        return residual
     
     def frequencies(self):
         return np.arange(self.size, dtype=float)
@@ -68,8 +73,8 @@ class Equation(object):
         return np.diag(-self.bifurcation_velocity() + self.image())
 
     def compute_nodes(self):
-        h = self.length/self.size
-        nodes = np.arange(h/2.,self.length,h)
+        h = np.pi/self.size
+        nodes = self.length/np.pi * np.arange(h/2.,np.pi,h)
         return nodes
 
     def compute_initial_guess(self, e=0.01):
@@ -94,7 +99,7 @@ class Whitham(Equation):
         return whitham
         
     def compute_weights(self):
-        ks = np.arange(self.size, dtype=float)
+        ks = np.pi/self.length*np.arange(self.size, dtype=float)
         ww = 2/self.size
         weights = self.compute_kernel(ks)*ww
         weights[0] = 1/self.size
@@ -140,7 +145,7 @@ class KDV(Equation):
         return 1.0-1.0/6*k**2
             
     def compute_weights(self):
-        ks = np.arange(self.size, dtype=float)
+        ks = np.pi/self.length * np.arange(self.size, dtype=float)
         ww = 2/self.size
         weights = self.compute_kernel(ks)*ww  
         weights[0] = weights[0]/2  
@@ -187,7 +192,7 @@ class Kawahara (Equation):
         return 1.0+0.5*kp*k**2 + 1.0/90*k**4
             
     def compute_weights(self):
-        ks = np.arange(self.size, dtype=float)
+        ks = np.pi/self.length * np.arange(self.size, dtype=float)
         ww = 2/self.size
         weights = self.compute_kernel(ks)*ww  
         weights[0] = weights[0]/2  

@@ -32,9 +32,9 @@ class Trapezoidal_rule(object):
             if np.abs(Y[n]) < 1e-15:
                 Y[n] = 0
         if symm == 1:
-            xx = np.arange(0, 2*L, L/N)
+            xx = L/np.pi*np.arange(0, 2*np.pi, np.pi/N)
         else:
-            xx = np.arange(-L, L, L/N)
+            xx = L/np.pi*np.arange(-np.pi, np.pi, np.pi/N)
         k = range(N)
         NN = 2*N
 
@@ -49,8 +49,9 @@ class Trapezoidal_rule(object):
               
     def evolution(self, solution, dt = 0.001, periods = 1):
         """
-        The main body of the integrator's code. Takes full wave profile as input. Returns the result of integration of the
-        given equation with input as the initial value. 
+        The main body of the integrator's code. Takes full wave profile as input. Returns the result of integration 
+        of the given equation with input as the initial value. Integrates over the given number of time periods
+        with given time-step dt.  
         """
         u = solution    
         NN = len(u) 
@@ -99,7 +100,8 @@ class Trapezoidal_rule(object):
 
 class DeFrutos_SanzSerna(Trapezoidal_rule):
     """
-    4th order dynamic integrator based on the method of de Frutos and Sanz-Serna (1992).
+    4th order dynamic integrator based on the method of de Frutos and Sanz-Serna (1992). The class changes the evolution() method of the
+    Trapezoidal_rule class and adds its own methods. 
     """
     def multipliers(self, timestep = 0.001):
         """
@@ -154,6 +156,9 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         return 2*Z-fftvector
         
     def integrator(self, wave_profile, m1, m2, mm1, mm2):
+        """
+        The main algorithm for integration based on De Frutos and Sanz-Serna findings.
+        """
         beta = ( 2 + 2**(1/3) + 2**(-1/3) )/3
         
         p = self.eq.degree()-1
@@ -203,8 +208,11 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         return u
     
     def evolution(self, solution, dt = 0.001, periods = 1):
-        u = solution    
-              
+        """
+        
+        """
+        u = solution                  
+
         T = 2*self.eq.length/self.velocity
         t = dt
         m1, m2, mm1, mm2 = self.multipliers(timestep=dt)

@@ -8,7 +8,7 @@ system.
 
 from __future__ import division
 import numpy as np
-from equation import Equation
+from scipy.integrate import trapz
 
 class ConstZero(object):
     """
@@ -16,10 +16,26 @@ class ConstZero(object):
     the system and always set to zero.
     """
     def enforce(self, wave, variables, parameters):
+        """
+        Enforces the ConstZero boundary condition. Requires a dummy variable to be zero (1st condition)
+        and a constraint for navigation (2nd condition).
+        """
         return np.hstack([variables[0] , parameters[1] - wave[0] + wave[-1]])
     
     def variables_num(self):
+        """
+        The number of additional variables that are required to construct the ConstZero boundary conditions. 
+        """
         return 1
+
+class ConstZero_Energy(ConstZero):
+    def enforce(self, wave, variables, parameters):
+        """
+        Enforces the ConstZero boundary condition. Requires a dummy variable to be zero (1st condition)
+        and a constraint for navigation (2nd condition).
+        """
+        xx = np.arange(0.5*np.pi/len(wave), np.pi, np.pi/len(wave))
+        return np.hstack([variables[0] , parameters[1] - trapz(wave**2, xx)])
 
 class MeanZero(ConstZero):
     """
@@ -28,25 +44,18 @@ class MeanZero(ConstZero):
     of the solution wave is zero.
     """    
     def enforce(self, wave, variables, parameters):
-        return np.hstack([variables[0] - sum(wave), parameters[1] - wave[0] + wave[-1]])
+        return np.hstack([sum(wave), parameters[1] - wave[0] + wave[-1]])
 
-class MinimumZero(ConstZero, Equation):
+class MinimumZero(ConstZero):
     """
     The boundary condition under which the constant of integration (B) is not considered in
     the system and always set to zero. The right-most element of the solution wave is always considered to be zero,
     this feature allows computing solitary waves.
-    """   
-    def __init__(self, Equation):
-        self.equation = Equation
-        
-    def reducedresidual(self, u): 
-        output = np.dot(self.equation.linear_operator, u) - self.equation.parameters[0]*u + self.equation.flux(u) 
-        return output[:-1]
+    """       
     
     def variables_num(self):
         return 1
   
-    def enforce(self, wave, variables, parameters):
-        wave[-1] = 0 
-        self.equation.residual = self.reducedresidual
-        return np.hstack([variables[0] - sum(wave), parameters[1] - wave[0] + wave[-1]])
+    def enforce(self, wave, variables, equation, parameters):
+        
+        return np.hstack([variables[0] - np.dot(equation.linear_operator, wave)[-1], parameters[1] - wave[0] + wave[-1]])

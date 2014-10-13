@@ -1,14 +1,7 @@
-
 from __future__ import division
 
 import numpy as np
-import navigation
-import boundary
-
-# various nonlinear solvers
-from scipy.optimize import fsolve
 import newton
-
 
 def compute_parameter(parameter, direction, extent):
     """
@@ -51,7 +44,7 @@ class Solver(object):
             parameter = compute_parameter(parameter_anchor, direction, extent)
             self.equation.initialize(parameter)
             boundary_residual = self.boundary.enforce(wave, variables, parameter)
-            main_residual = self.equation.residual(wave)
+            main_residual = self.equation.residual(wave, variables)
             return np.hstack([main_residual, boundary_residual])
         
         guess = self.construct(guess_wave, np.zeros(self.boundary.variables_num()), 0)

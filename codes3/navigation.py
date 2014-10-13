@@ -2,7 +2,7 @@ from __future__ import division
     
 def ortho_direction(p1, p2, step):
     """
-    Return pstar such that
+    Returns pstar such that
         pstar = p2 + step*(p2-p1)
     """
     dp = (p2[0] - p1[0], p2[1] - p1[1])
