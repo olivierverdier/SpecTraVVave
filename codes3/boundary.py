@@ -56,6 +56,6 @@ class MinimumZero(ConstZero):
     def variables_num(self):
         return 1
   
-    def enforce(self, wave, variables, equation, parameters):
+    def enforce(self, wave, variables, parameters):
         
-        return np.hstack([variables[0] - np.dot(equation.linear_operator, wave)[-1], parameters[1] - wave[0] + wave[-1]])
+        return np.hstack([wave[-1], parameters[1] - wave[0] + wave[-1]])

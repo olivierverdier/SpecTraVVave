@@ -37,17 +37,17 @@ class Equation(object):
         self.parameters = parameters
 
     @classmethod
-    def general_linear_operator(self, weights, nodes, length):
+    def general_linear_operator(self, weights, nodes):
         f = np.cos
         size = len(nodes)
-        ik = np.pi/length * nodes.reshape(-1,1) * np.arange(len(weights))
+        ik = nodes.reshape(-1,1) * np.arange(len(weights))
         fik = f(ik) 
         linop = np.zeros([size, size])
         _fast_make_linear_operator(linop, weights, fik)
         return linop
         
     def compute_linear_operator(self):
-        return self.general_linear_operator(weights=self.weights, nodes=self.nodes, length = self.length)
+        return self.general_linear_operator(weights=self.weights, nodes=self.nodes)
 
     def Jacobian(self, u):
         return self.compute_shifted_operator + np.diag(self.flux_prime(u))
@@ -55,9 +55,9 @@ class Equation(object):
     def residual(self, u, integrconst): 
         return np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u) - integrconst
 
-    def residual1(self, u): 
-        residual1 = np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u)
-        residual = residual1[:-1]
+    def residual1(self, u, integrconst): 
+        residual1 = np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u) - integrconst
+        residual = np.hstack([residual1[:-1], np.dot(self.linear_operator, u)[-1]] - integrconst)
         return residual
     
     def frequencies(self):
@@ -74,7 +74,7 @@ class Equation(object):
 
     def compute_nodes(self):
         h = np.pi/self.size
-        nodes = self.length/np.pi * np.arange(h/2.,np.pi,h)
+        nodes = np.arange(h/2.,np.pi,h)
         return nodes
 
     def compute_initial_guess(self, e=0.01):
@@ -99,7 +99,7 @@ class Whitham(Equation):
         return whitham
         
     def compute_weights(self):
-        ks = np.pi/self.length*np.arange(self.size, dtype=float)
+        ks = np.arange(self.size, dtype=float)
         ww = 2/self.size
         weights = self.compute_kernel(ks)*ww
         weights[0] = 1/self.size
@@ -109,6 +109,25 @@ class Whitham(Equation):
         return 0.75*u**2  
 
     def flux_prime(self, u):
+        return 1.5*u
+
+class Whitham_scaled(Whitham):
+    def compute_kernel(self,k):
+        scale = self.length/np.pi
+        if k[0] == 0:
+            k1 = k[1:]
+            whitham = np.sqrt(scale) * np.concatenate( ([1], np.sqrt(1./k1*np.tanh(1/scale * k1))))
+        else:    
+            whitham  = np.sqrt(scale) * np.sqrt(1./k*np.tanh(1/scale * k))
+       
+        return whitham
+    
+    def flux(self, u):
+        scale = self.length/np.pi
+        return 0.75*u**2  
+
+    def flux_prime(self, u):
+        scale = self.length/np.pi
         return 1.5*u
 
 class Whitham3(Whitham):
@@ -145,7 +164,7 @@ class KDV(Equation):
         return 1.0-1.0/6*k**2
             
     def compute_weights(self):
-        ks = np.pi/self.length * np.arange(self.size, dtype=float)
+        ks = np.arange(self.size, dtype=float)
         ww = 2/self.size
         weights = self.compute_kernel(ks)*ww  
         weights[0] = weights[0]/2  
@@ -192,7 +211,7 @@ class Kawahara (Equation):
         return 1.0+0.5*kp*k**2 + 1.0/90*k**4
             
     def compute_weights(self):
-        ks = np.pi/self.length * np.arange(self.size, dtype=float)
+        ks = np.arange(self.size, dtype=float)
         ww = 2/self.size
         weights = self.compute_kernel(ks)*ww  
         weights[0] = weights[0]/2  

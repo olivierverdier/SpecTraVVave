@@ -21,8 +21,7 @@ class Trapezoidal_rule(object):
         symm = 1 yields a branch symmetric w.r.t. x = L.
         """
         N = self.eq.size                                
-        L = self.eq.length
-                
+                       
         ww = math.sqrt(2/float(N)) * np.ones((N,1))
         ww[0,0] = math.sqrt(1/float(N))
 
@@ -32,9 +31,9 @@ class Trapezoidal_rule(object):
             if np.abs(Y[n]) < 1e-15:
                 Y[n] = 0
         if symm == 1:
-            xx = L/np.pi*np.arange(0, 2*np.pi, np.pi/N)
+            xx = np.arange(0, 2*np.pi, np.pi/N)
         else:
-            xx = L/np.pi*np.arange(-np.pi, np.pi, np.pi/N)
+            xx = np.arange(-np.pi, np.pi, np.pi/N)
         k = range(N)
         NN = 2*N
 
@@ -55,9 +54,10 @@ class Trapezoidal_rule(object):
         """
         u = solution    
         NN = len(u) 
+        scale = self.eq.length/np.pi
         
         k = np.concatenate((np.arange(1, NN/2+1, 1), np.arange(1-NN/2, 0, 1)))
-        kerne = 1j*k*self.eq.compute_kernel(k) 
+        kerne = 1/scale * 1j * k * self.eq.compute_kernel(k) 
         kernel = np.concatenate(([0], kerne))
         kernel[NN/2] = 0
         k = np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
@@ -65,7 +65,7 @@ class Trapezoidal_rule(object):
         m = 0.5*dt*kernel
         d1 = (1-m)/(1+m)
         d1[NN/2] = 0
-        d2 = -0.5*1j*dt*k/(1+m)
+        d2 = -0.5/scale * 1j*dt*k/(1+m)
         
         T = 2*self.eq.length/self.velocity
         eps = 1e-10
@@ -111,18 +111,19 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         N = 2*self.eq.size
         p = self.eq.degree()-1
         dt = timestep
+        scale = self.eq.length/np.pi
         
         k = np.concatenate((np.arange(1, N/2+1, 1), np.arange(1-N/2, 0, 1)))
-        kerne = 1j*k*self.eq.compute_kernel(k) 
+        kerne =  1j * k * self.eq.compute_kernel(k) 
         kernel = np.concatenate(([0], kerne))
         kernel[N/2] = 0
         k = np.concatenate((np.arange(0, N/2, 1), [0], np.arange(1-N/2, 0, 1)))    
         m = -0.5*dt*kernel
         
         m1 = 1./( 1 - beta*m );
-        m2 = ( 1.5*beta*dt*1j*k/(2*(p+1)) )*m1; 
+        m2 = ( 1.5 * beta * dt * 1j * k/(2*(p+1)) )*m1; 
         mm1 = 1./( 1 - (1-2*beta)*m );
-        mm2 = ( 1.5*(1-2*beta)*dt*1j*k/(2*(p+1)) )*mm1;
+        mm2 = ( 1.5 * (1-2*beta) * dt * 1j * k/(2*(p+1)) )*mm1;
         
         return m1, m2, mm1, mm2
     
