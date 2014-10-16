@@ -36,12 +36,11 @@ class Equation(object):
     def initialize(self, parameters):                                               
         self.parameters = parameters
 
-    @classmethod
     def general_linear_operator(self, weights, nodes):
         f = np.cos
         size = len(nodes)
         ik = nodes.reshape(-1,1) * np.arange(len(weights))
-        fik = f(ik) 
+        fik = f(np.pi/self.length*ik) # should be replaced by a dct
         linop = np.zeros([size, size])
         _fast_make_linear_operator(linop, weights, fik)
         return linop
@@ -61,7 +60,7 @@ class Equation(object):
         return residual
     
     def frequencies(self):
-        return np.arange(self.size, dtype=float)
+        return np.pi/self.length*np.arange(self.size, dtype=float)
 
     def image(self):
         return self.compute_kernel(self.frequencies())
@@ -77,7 +76,7 @@ class Equation(object):
         return nodes
 
     def compute_initial_guess(self, e=0.01):
-        xi1 = np.cos(self.nodes)
+        xi1 = np.cos(np.pi/self.length*self.nodes)
         init_guess = e*xi1 
         return init_guess
 
@@ -163,7 +162,7 @@ class KDV(Equation):
         return 1.0-1.0/6*k**2
             
     def compute_weights(self):
-        ks = np.arange(self.size, dtype=float)
+        ks = self.frequencies()
         ww = 2/self.size
         weights = self.compute_kernel(ks)*ww  
         weights[0] = weights[0]/2  

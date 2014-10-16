@@ -33,16 +33,22 @@ def derivative2(xs, us):
     dx = xs[1]-xs[0]
     return ddu/(dx*dx)
 
-def residual(c, B, xs, us):
-    u = identity(xs,us)
-    res = (1-c) * u + 3/4*u*u + 1/6*derivative2(xs,us) - B
-    return res
+class TestKDV(unittest.TestCase):
 
-class Test(unittest.TestCase):
+    @classmethod
+    def get_equation_class(self):
+        return KDV
+
+    def residual(self, c, B, xs, us):
+        u = identity(xs,us)
+        res = (1-c) * u + 3/4*u*u + 1/6*derivative2(xs,us) - B
+        return res
+
     def test(self):
         size = 128
-        length = np.pi
-        self.equation = KDV(size, length)
+        length = 10
+        ## length = np.pi
+        self.equation = self.get_equation_class()(size, length)
         boundary = MeanZero()
         solver = Solver(self.equation, boundary)
         nav = Navigator(solver.solve)
@@ -59,6 +65,6 @@ class Test(unittest.TestCase):
         c = store[2][0]
         xs = self.equation.nodes
         computed = store[0]
-        res = residual(c, B, xs, computed)
+        res = self.residual(c, B, xs, computed)
         npt.assert_allclose(res, 0, atol=1e-6)
         
