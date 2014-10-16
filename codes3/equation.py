@@ -73,8 +73,7 @@ class Equation(object):
         return np.diag(-self.bifurcation_velocity() + self.image())
 
     def compute_nodes(self):
-        h = np.pi/self.size
-        nodes = np.arange(h/2.,np.pi,h)
+        nodes = self.length*(np.linspace(0, 1, self.size, endpoint=False) + 1/2/self.size)
         return nodes
 
     def compute_initial_guess(self, e=0.01):
