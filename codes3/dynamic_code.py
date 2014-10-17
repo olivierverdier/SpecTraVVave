@@ -48,11 +48,10 @@ class Trapezoidal_rule(object):
         d1[NN/2] = 0
         d2 = -0.5/scale * 1j*dt*shifted_frequencies/(1+m)
         
-        T = 2*self.eq.length/self.velocity
         eps = 1e-10
         t = dt
         it = 0
-        while t < periods*T+dt:
+        for i in range(nb_steps):
             fftu = fft(u)
             fftuu = fft(self.eq.flux(u))
             z = d1*fftu + d2*fftuu
@@ -74,7 +73,6 @@ class Trapezoidal_rule(object):
                 w_old = w
                 
             u = w
-            t = t + dt
         return u
 
 
