@@ -31,17 +31,19 @@ class Trapezoidal_rule(object):
         u = solution    
         NN = len(u) 
         scale = self.eq.length/np.pi
-        
-        k = np.concatenate((np.arange(1, NN/2+1, 1), np.arange(1-NN/2, 0, 1)))
-        kerne = 1/scale * 1j * k * self.eq.compute_kernel(1/scale * k) 
+
+        # todo: use fft shift and freq instead
+        centered_frequencies = 1/scale * np.concatenate((np.arange(1, NN/2+1, 1), np.arange(1-NN/2, 0, 1)))
+        kerne = 1j * centered_frequencies * self.eq.compute_kernel(centered_frequencies) 
         kernel = np.concatenate(([0], kerne))
         kernel[NN/2] = 0
-        k = np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
+
+        shifted_frequencies = np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
         
         m = 0.5*dt*kernel
         d1 = (1-m)/(1+m)
         d1[NN/2] = 0
-        d2 = -0.5/scale * 1j*dt*k/(1+m)
+        d2 = -0.5/scale * 1j*dt*shifted_frequencies/(1+m)
         
         T = 2*self.eq.length/self.velocity
         eps = 1e-10
