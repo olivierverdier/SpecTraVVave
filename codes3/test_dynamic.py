@@ -32,7 +32,7 @@ class TestTrapezoidal(unittest.TestCase):
         #dyn = DeFrutos_SanzSerna(equation, u, velocity)
         dyn = Trapezoidal_rule(equation, u, velocity)
         uu = dyn.mirror()
-        t_wave = dyn.evolution(solution = uu, dt = 0.001, periods = 1)
+        t_wave = dyn.evolution(solution = uu, nb_steps=1e4, periods = 1)
 
         xx = np.arange(-length, length, length/size)
         error = t_wave - uu

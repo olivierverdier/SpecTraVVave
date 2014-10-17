@@ -22,7 +22,7 @@ class Trapezoidal_rule(object):
         uu = np.hstack([u[::-1],u])
         return uu
 
-    def evolution(self, solution, dt = 0.001, periods = 1):
+    def evolution(self, solution, nb_steps=1000, periods = 1):
         """
         The main body of the integrator's code. Takes full wave profile as input. Returns the result of integration 
         of the given equation with input as the initial value. Integrates over the given number of time periods
@@ -40,6 +40,9 @@ class Trapezoidal_rule(object):
 
         shifted_frequencies = np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
         
+        T = 2*self.eq.length/self.velocity
+        dt = periods*T/nb_steps
+
         m = 0.5*dt*kernel
         d1 = (1-m)/(1+m)
         d1[NN/2] = 0
