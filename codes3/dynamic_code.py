@@ -70,8 +70,8 @@ class Trapezoidal_rule(object):
             for it in xrange(maxit):
                 w_new = fixed(w)
                 diff = w_new - w
-                err = np.linalg.norm(diff)
-                if abs(err) < eps:
+                err = abs(np.max(diff))
+                if err < eps:
                     break
                 w = w_new
             else:
