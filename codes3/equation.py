@@ -54,11 +54,6 @@ class Equation(object):
     def residual(self, u, integrconst): 
         return np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u) - integrconst
 
-    def residual1(self, u, integrconst): 
-        residual1 = np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u) - integrconst
-        residual = np.hstack([residual1[:-1], np.dot(self.linear_operator, u)[-1]] - integrconst)
-        return residual
-    
     def frequencies(self):
         return np.pi/self.length*np.arange(self.size, dtype=float)
 
@@ -66,7 +61,7 @@ class Equation(object):
         return self.compute_kernel(self.frequencies())
 
     def bifurcation_velocity(self):
-        return self.image()[1]
+        return self.image()[1] # check this
 
     def shifted_kernel(self):
         return np.diag(-self.bifurcation_velocity() + self.image())
@@ -162,7 +157,7 @@ class KDV(Equation):
         return 1.0-1.0/6*k**2
             
     def flux(self, u):
-        return 0.75*u**2  
+        return 0.75*u*u
 
     def flux_prime(self, u):
         return 1.5*u
