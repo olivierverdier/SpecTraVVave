@@ -6,7 +6,7 @@ import numpy.testing as npt
 import nose.tools as nt
 from nose.plugins.skip import Skip, SkipTest
 
-from odelab.newton import *
+from travwave.newton import *
 
 import nose.tools as nt
 
