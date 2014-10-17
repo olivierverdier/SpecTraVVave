@@ -20,22 +20,13 @@ class ConstZero(object):
         Enforces the ConstZero boundary condition. Requires a dummy variable to be zero (1st condition)
         and a constraint for navigation (2nd condition).
         """
-        return np.hstack([variables[0] , parameters[1] - wave[0] + wave[-1]])
+        return np.hstack([variables[0]])
     
     def variables_num(self):
         """
         The number of additional variables that are required to construct the ConstZero boundary conditions. 
         """
         return 1
-
-class ConstZero_Energy(ConstZero):
-    def enforce(self, wave, variables, parameters):
-        """
-        Enforces the ConstZero boundary condition. Requires a dummy variable to be zero (1st condition)
-        and a constraint for navigation (2nd condition).
-        """
-        xx = np.arange(0.5*np.pi/len(wave), np.pi, np.pi/len(wave))
-        return np.hstack([variables[0] , parameters[1] - trapz(wave**2, xx)])
 
 class MeanZero(ConstZero):
     """
@@ -44,7 +35,7 @@ class MeanZero(ConstZero):
     of the solution wave is zero.
     """    
     def enforce(self, wave, variables, parameters):
-        return np.hstack([sum(wave), parameters[1] - wave[0] + wave[-1]])
+        return np.hstack([sum(wave)])
 
 class Minimum(ConstZero):
     """
@@ -60,4 +51,4 @@ class Minimum(ConstZero):
   
     def enforce(self, wave, variables, parameters):
         
-        return np.hstack([wave[-1] - self.level, parameters[1] - wave[0] + wave[-1]])
+        return np.hstack([wave[-1] - self.level])

@@ -44,8 +44,9 @@ class Solver(object):
             parameter = compute_parameter(parameter_anchor, direction, extent)
             self.equation.initialize(parameter)
             boundary_residual = self.boundary.enforce(wave, variables, parameter)
+            parameter_residual = np.array([parameter[1] - wave[0] + wave[-1]])
             main_residual = self.equation.residual(wave, variables)
-            return np.hstack([main_residual, boundary_residual])
+            return np.hstack([main_residual, boundary_residual, parameter_residual])
         
         guess = self.construct(guess_wave, np.zeros(self.boundary.variables_num()), 0)
         nsolver = newton.MultipleSolver(residual)

@@ -88,6 +88,20 @@ class TestKDV(unittest.TestCase):
         res = (1-c) * u + 3/4*u*u + 1/6*derivative2(xs,us) - B
         return res
         
+
+class TestKDVMean(TestKDV):
+    def get_boundary(self):
+        return MeanZero()
+
+    @unittest.skip("Remove when Mean boundary condition is implemented")
+    def test_boundary(self):
+        pass
+
+class TestKDVConstZero(TestKDVMean):
+    def get_boundary(self):
+        return ConstZero()
+
+
 class TestKDVSoliton(TestKDV):
     def get_length(self):
         return 50
