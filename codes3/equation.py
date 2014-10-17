@@ -80,6 +80,14 @@ class Equation(object):
         init_guess = e*xi1 
         return init_guess
 
+    def compute_weights(self):
+        ks = self.frequencies()
+        ww = 2/self.size
+        weights = self.compute_kernel(ks)*ww  
+        weights[0] = weights[0]/2  
+        return weights
+        
+
 class Whitham(Equation):
     def degree(self):
         return 2    
@@ -95,13 +103,6 @@ class Whitham(Equation):
             whitham  = np.sqrt(1./k*np.tanh(k))
         
         return whitham
-        
-    def compute_weights(self):
-        ks = np.arange(self.size, dtype=float)
-        ww = 2/self.size
-        weights = self.compute_kernel(ks)*ww
-        weights[0] = 1/self.size
-        return weights
         
     def flux(self, u):
         return 0.75*u**2  
@@ -161,13 +162,6 @@ class KDV(Equation):
     def compute_kernel(self, k):
         return 1.0-1.0/6*k**2
             
-    def compute_weights(self):
-        ks = self.frequencies()
-        ww = 2/self.size
-        weights = self.compute_kernel(ks)*ww  
-        weights[0] = weights[0]/2  
-        return weights
-        
     def flux(self, u):
         return 0.75*u**2  
 
@@ -208,13 +202,6 @@ class Kawahara (Equation):
         kp = 1
         return 1.0+0.5*kp*k**2 + 1.0/90*k**4
             
-    def compute_weights(self):
-        ks = np.arange(self.size, dtype=float)
-        ww = 2/self.size
-        weights = self.compute_kernel(ks)*ww  
-        weights[0] = weights[0]/2  
-        return weights
-
     def flux(self, u):
         return 0.75*u**2  
 
