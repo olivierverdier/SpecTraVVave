@@ -14,38 +14,14 @@ class Trapezoidal_rule(object):
         self.u = wave
         self.velocity = velocity
 
-    def interpolation(self, symm = 0):                  
+    def mirror(self):
         """
-        Uses dct to create a symmetric image of the given solution wave
-        and contruct a full wave profile. Parameter symm = 0 means that the branch is symmetric w.r.t. x = 0; 
-        symm = 1 yields a branch symmetric w.r.t. x = L.
+        Mirrors the half-period profile to a full period profile.
         """
-        N = self.eq.size                                
-                       
-        ww = math.sqrt(2/float(N)) * np.ones((N,1))
-        ww[0,0] = math.sqrt(1/float(N))
-
-        Y = np.zeros(N)
-        Y = dct(self.u, norm='ortho')
-        for n in range(N):
-            if np.abs(Y[n]) < 1e-15:
-                Y[n] = 0
-        if symm == 1:
-            xx = np.arange(0, 2*np.pi, np.pi/N)
-        else:
-            xx = np.arange(-np.pi, np.pi, np.pi/N)
-        k = range(N)
-        NN = 2*N
-
-        uu = np.zeros(NN)
-
-        for m in range(NN):
-            uu[m] = 0
-            for n in range(N):
-                uu[m] = uu[m] + ww[n]*Y[n]*np.cos(xx[m]*k[n])
-        
+        u = self.u
+        uu = np.hstack([u[::-1],u])
         return uu
-              
+
     def evolution(self, solution, dt = 0.001, periods = 1):
         """
         The main body of the integrator's code. Takes full wave profile as input. Returns the result of integration 

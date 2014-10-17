@@ -31,8 +31,7 @@ class TestTrapezoidal(unittest.TestCase):
         velocity = nav.store[-1][2][0]
         #dyn = DeFrutos_SanzSerna(equation, u, velocity)
         dyn = Trapezoidal_rule(equation, u, velocity)
-        uu = dyn.interpolation()
-        #uu = np.hstack([u[::-1],u])
+        uu = dyn.mirror()
         t_wave = dyn.evolution(solution = uu, dt = 0.001, periods = 1)
 
         xx = np.arange(-length, length, length/size)
