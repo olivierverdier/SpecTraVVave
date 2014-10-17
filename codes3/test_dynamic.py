@@ -32,9 +32,9 @@ class TestTrapezoidal(unittest.TestCase):
         #dyn = DeFrutos_SanzSerna(equation, u, velocity)
         dyn = Trapezoidal_rule(equation, u, velocity)
         uu = dyn.mirror()
-        t_wave = dyn.evolution(solution = uu, nb_steps=int(1e4), periods = 1)
+        t_wave = dyn.evolution(solution = uu, nb_steps=int(1e3), periods = 1)
 
         xx = np.arange(-length, length, length/size)
         error = t_wave - uu
         print max(abs(error))
-        npt.assert_allclose(t_wave, uu, atol=1e-7)
+        npt.assert_allclose(t_wave, uu, atol=1e-5)
