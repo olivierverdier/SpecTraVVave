@@ -35,13 +35,14 @@ def derivative2(xs, us):
 
 class TestKDV(unittest.TestCase):
 
+
     def setUp(self):
         size = 128
         length = 10
         ## length = np.pi
         self.equation = self.get_equation_class()(size, length)
-        boundary = MeanZero()
-        solver = Solver(self.equation, boundary)
+        self.boundary = self.get_boundary()
+        solver = Solver(self.equation, self.boundary)
         nav = Navigator(solver.solve)
         initial_guess = self.equation.compute_initial_guess()
         initial_velocity = self.equation.bifurcation_velocity()
@@ -60,11 +61,18 @@ class TestKDV(unittest.TestCase):
     def test_residual(self):
         res = self.residual(self.c, self.B, self.xs, self.computed)
         npt.assert_allclose(res, 0, atol=1e-6)
+
+    def test_boundary(self):
+        level = self.boundary.level
+        npt.assert_allclose(min(self.computed), level, atol=1e-15)
         
 
     @classmethod
     def get_equation_class(self):
         return KDV
+
+    def get_boundary(self, level=.1):
+        return Minimum(level)
 
     def residual(self, c, B, xs, us):
         u = identity(xs,us)
