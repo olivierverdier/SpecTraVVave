@@ -4,10 +4,10 @@ from __future__ import division
 
 import unittest
 
-from navigation import *
-from solver import *
-from equation import *
-from boundary import *
+from travwave.navigation import *
+from travwave.solver import *
+from travwave.equation import *
+from travwave.boundary import *
 
 import numpy.testing as npt
 

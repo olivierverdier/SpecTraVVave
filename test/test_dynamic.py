@@ -5,11 +5,11 @@ from __future__ import division
 import unittest
 import numpy.testing as npt
 
-from equation import *
-from boundary import *
-from solver import *
-from navigation import *
-from dynamic_code import *
+from travwave.equation import *
+from travwave.boundary import *
+from travwave.solver import *
+from travwave.navigation import *
+from travwave.dynamic_code import *
 
 class TestTrapezoidal(unittest.TestCase):
     def test(self):

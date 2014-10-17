@@ -5,8 +5,9 @@ from __future__ import division
 import unittest
 import numpy.testing as npt
 
-from solver import *
+from travwave.solver import *
 
+@unittest.skip("The Jacobian is not implemented")
 class TestJacobianExtension(unittest.TestCase):
     def test_extension(self):
         jacobian = np.zeros((3,3))
