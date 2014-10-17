@@ -41,8 +41,11 @@ class TestKDV(unittest.TestCase):
     def get_nbsteps(self):
         return 1
 
+    def get_size(self):
+        return 256
+
     def setUp(self):
-        size = 256
+        size = self.get_size()
         length = self.get_length()
         self.equation = self.get_equation_class()(size, length)
         self.boundary = self.get_boundary()
@@ -121,8 +124,11 @@ class TestKDVSoliton(TestKDV):
 
 @unittest.skip("Takes too long")
 class TestKDVSolitonLarge(TestKDVSoliton):
+    def get_size(self):
+        return 32
+
     def get_length(self):
-        return 70
+        return 75
 
     def get_nbsteps(self):
         return 50
