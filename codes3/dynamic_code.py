@@ -57,7 +57,7 @@ class Trapezoidal_rule(object):
         scale = self.eq.length/np.pi
         
         k = np.concatenate((np.arange(1, NN/2+1, 1), np.arange(1-NN/2, 0, 1)))
-        kerne = 1/scale * 1j * k * self.eq.compute_kernel(k) 
+        kerne = 1/scale * 1j * k * self.eq.compute_kernel(1/scale * k) 
         kernel = np.concatenate(([0], kerne))
         kernel[NN/2] = 0
         k = np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
@@ -94,7 +94,6 @@ class Trapezoidal_rule(object):
                 
             u = w
             t = t + dt
-        print 'The error for', periods,' periods is E = ', np.linalg.norm(u-solution)     
         return u
 
 
@@ -221,5 +220,4 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
             w = self.integrator(wave_profile = u, m1=m1, m2=m2, mm1=mm1, mm2=mm2)
             u = w
             t = t + dt
-        print 'The error for', periods,' periods is E = ', np.linalg.norm(u-solution)     
         return u
