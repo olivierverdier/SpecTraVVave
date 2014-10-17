@@ -35,16 +35,7 @@ def derivative2(xs, us):
 
 class TestKDV(unittest.TestCase):
 
-    @classmethod
-    def get_equation_class(self):
-        return KDV
-
-    def residual(self, c, B, xs, us):
-        u = identity(xs,us)
-        res = (1-c) * u + 3/4*u*u + 1/6*derivative2(xs,us) - B
-        return res
-
-    def test(self):
+    def setUp(self):
         size = 128
         length = 10
         ## length = np.pi
@@ -61,10 +52,21 @@ class TestKDV(unittest.TestCase):
         nav.run(1)
         self.nav = nav
         store = nav.store[-1]
-        B = store[1][0]
-        c = store[2][0]
-        xs = self.equation.nodes
-        computed = store[0]
-        res = self.residual(c, B, xs, computed)
+        self.B = store[1][0]
+        self.c = store[2][0]
+        self.xs = self.equation.nodes
+        self.computed = store[0]
+
+    def test_residual(self):
+        res = self.residual(self.c, self.B, self.xs, self.computed)
         npt.assert_allclose(res, 0, atol=1e-6)
         
+
+    @classmethod
+    def get_equation_class(self):
+        return KDV
+
+    def residual(self, c, B, xs, us):
+        u = identity(xs,us)
+        res = (1-c) * u + 3/4*u*u + 1/6*derivative2(xs,us) - B
+        return res
