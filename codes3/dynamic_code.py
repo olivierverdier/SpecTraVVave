@@ -49,29 +49,34 @@ class Trapezoidal_rule(object):
         d2 = -0.5/scale * 1j*dt*shifted_frequencies/(1+m)
         
         eps = 1e-10
-        t = dt
-        it = 0
+
         for i in range(nb_steps):
             fftu = fft(u)
             fftuu = fft(self.eq.flux(u))
-            z = d1*fftu + d2*fftuu
-            v = np.real(ifft(z))
-            z = d1*fftu + 2*d2*fftuu 
-            w = np.real(ifft(z))
+
+            z1 = d1*fftu + d2*fftuu
+            v = np.real(ifft(z1))
+
+            z2 = d1*fftu + 2*d2*fftuu 
+            w = np.real(ifft(z2))
             
-            w_old = w 
-            err = 1
-            while err > eps:
-                it += 1
-                if it > 10000:
+            def fixed(w):
+                z = ifft(d2*fft(self.eq.flux(w)))    
+                w_new = v + z.real
+                return w_new
+
+            maxit = 10000
+
+            for it in xrange(maxit):
+                w_new = fixed(w)
+                diff = w_new - w
+                err = np.linalg.norm(diff)
+                if abs(err) < eps:
                     break
-                
-                z = ifft(d2*fft(self.eq.flux(w_old)))    
-                w = v + z.real
-                z = w - w_old
-                err = np.linalg.norm(z)
-                w_old = w
-                
+                w = w_new
+            else:
+                raise Exception("Fixed point did not converge in %d iterations" % maxit)
+
             u = w
         return u
 
