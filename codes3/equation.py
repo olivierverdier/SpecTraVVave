@@ -81,9 +81,8 @@ class Equation(object):
         return init_guess
 
     def compute_weights(self):
-        ks = self.frequencies()
         ww = 2/self.size
-        weights = self.compute_kernel(ks)*ww  
+        weights = self.image()*ww  
         weights[0] = weights[0]/2  
         return weights
         
