@@ -42,7 +42,7 @@ class TestKDV(unittest.TestCase):
         return 1
 
     def get_size(self):
-        return 256
+        return 128
 
     def setUp(self):
         size = self.get_size()
@@ -113,7 +113,7 @@ class TestKDVSoliton(TestKDV):
         return 1
 
     def get_residual_tolerance(self):
-        return 1e-5
+        return 1e-4
 
     def get_boundary(self):
         return Minimum(0)
