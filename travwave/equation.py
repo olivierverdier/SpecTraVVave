@@ -30,8 +30,11 @@ class Equation(object):
         self.linear_operator = self.compute_linear_operator()
 
          
-    def compute_shifted_operator(self):                                             
-        return (-1)*self.parameters[0]*np.eye(self.size) + self.linear_operator
+    def compute_shifted_operator(self, size):                                             
+        """
+        Only used for testing purposes
+        """
+        return (-1)*self.parameters[0]*np.eye(size) + self.linear_operator
 
     def initialize(self, parameters):                                               
         self.parameters = parameters

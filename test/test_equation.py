@@ -33,7 +33,7 @@ class HarnessEquation(object):
     def test_residual(self):
         self.equation.initialize((2.,3.))
         u = np.random.rand(self.equation.size)
-        expected = np.dot(self.equation.compute_shifted_operator(), u) + self.equation.flux(u)
+        expected = np.dot(self.equation.compute_shifted_operator(self.equation.size), u) + self.equation.flux(u)
         computed = self.equation.residual(u, 0)
         npt.assert_allclose(computed, expected)
 
