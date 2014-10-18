@@ -5,22 +5,25 @@ from __future__ import division
 import unittest
 import numpy.testing as npt
 
-from travwave.equation import *
+from travwave.equations import *
+from travwave.discretization import Discretization
 from travwave.boundary import *
 from travwave.solver import *
 from travwave.navigation import *
 from travwave.dynamic_code import *
 
+
 class TestTrapezoidal(unittest.TestCase):
     def test(self):
         size = 128
         length = 3*np.pi
-        equation = KDV(size, length)
+        equation = kdv.KDV(length)
+        discretization = Discretization(equation, size)
         boundary = Minimum()
-        solver = Solver(equation, boundary)
+        solver = Solver(discretization, boundary)
         nav = Navigator(solver.solve)
-        initial_guess = equation.compute_initial_guess()
-        initial_velocity = equation.bifurcation_velocity()
+        initial_guess = discretization.compute_initial_guess()
+        initial_velocity = discretization.bifurcation_velocity()
         p1 = (initial_velocity, 0)
         epsilon = .01
         p0 = (initial_velocity, -epsilon)

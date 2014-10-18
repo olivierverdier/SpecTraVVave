@@ -6,7 +6,8 @@ import unittest
 
 from travwave.navigation import *
 from travwave.solver import *
-from travwave.equation import *
+from travwave.equations import *
+from travwave.discretization import Discretization
 from travwave.boundary import *
 
 import numpy.testing as npt
@@ -47,12 +48,13 @@ class TestKDV(unittest.TestCase):
     def setUp(self):
         size = self.get_size()
         length = self.get_length()
-        self.equation = self.get_equation_class()(size, length)
+        self.equation = self.get_equation_class()(length)
+        self.discretization = Discretization(self.equation, size)
         self.boundary = self.get_boundary()
-        solver = Solver(self.equation, self.boundary)
+        solver = Solver(self.discretization, self.boundary)
         nav = Navigator(solver.solve)
-        initial_guess = self.equation.compute_initial_guess()
-        initial_velocity = self.equation.bifurcation_velocity()
+        initial_guess = self.discretization.compute_initial_guess()
+        initial_velocity = self.discretization.bifurcation_velocity()
         p1 = (initial_velocity, 0)
         nb_steps = self.get_nbsteps()
         epsilon = .1/nb_steps
@@ -64,7 +66,7 @@ class TestKDV(unittest.TestCase):
         self.B = store[1][0]
         self.c = store[2][0]
         self.amplitude = store[2][1]
-        self.xs = self.equation.nodes
+        self.xs = self.discretization.nodes
         self.computed = store[0]
 
     def get_residual_tolerance(self):
@@ -81,7 +83,7 @@ class TestKDV(unittest.TestCase):
 
     @classmethod
     def get_equation_class(self):
-        return KDV
+        return kdv.KDV
 
     def get_boundary(self, level=.1):
         return Minimum(level)
