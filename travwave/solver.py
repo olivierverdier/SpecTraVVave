@@ -11,8 +11,8 @@ def compute_parameter(parameter, direction, extent):
             parameter[1] + extent*direction[1])
 
 class Solver(object):
-    def __init__(self, equation, boundary):
-        self.equation = equation
+    def __init__(self, discretization, boundary):
+        self.discretization = discretization
         self.boundary = boundary
 
     def construct(self, wave, variables, extent):
@@ -43,9 +43,9 @@ class Solver(object):
             wave, variables, extent = self.destruct(vector)
             parameter = compute_parameter(parameter_anchor, direction, extent)
             boundary_residual = self.boundary.enforce(wave, variables, parameter)
-            parameter_residual = np.array([parameter[1] - wave[0] + wave[-1]])
-            main_residual = self.equation.residual(wave, parameter, variables)
-            return np.hstack([main_residual, boundary_residual, parameter_residual])
+            amplitude_residual = np.array([parameter[1] - wave[0] + wave[-1]])
+            main_residual = self.discretization.residual(wave, parameter, variables)
+            return np.hstack([main_residual, boundary_residual, amplitude_residual])
         
         guess = self.construct(guess_wave, np.zeros(self.boundary.variables_num()), 0)
         nsolver = newton.MultipleSolver(residual)
