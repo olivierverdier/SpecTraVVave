@@ -74,9 +74,9 @@ class Discretization(object):
         nodes = self.equation.length*(np.linspace(0, 1, self.size, endpoint=False) + 1/2/self.size)
         return nodes
 
-    def compute_initial_guess(self, e=0.01):
-        xi1 = np.cos(np.pi/self.equation.length*self.get_nodes())
-        init_guess = e*xi1 
+    def compute_initial_guess(self, amplitude):
+        cosine = np.cos(np.pi/self.equation.length*self.get_nodes())
+        init_guess = amplitude*cosine
         return init_guess
 
     def get_weights(self):

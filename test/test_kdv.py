@@ -53,12 +53,12 @@ class TestKDV(unittest.TestCase):
         self.boundary = self.get_boundary()
         solver = Solver(self.discretization, self.boundary)
         nav = Navigator(solver.solve)
-        initial_guess = self.discretization.compute_initial_guess()
         initial_velocity = self.discretization.bifurcation_velocity()
         p1 = (initial_velocity, 0)
         nb_steps = self.get_nbsteps()
         epsilon = .1/nb_steps
         p0 = (initial_velocity, -epsilon)
+        initial_guess = self.discretization.compute_initial_guess(epsilon/10)
         nav.initialize(initial_guess, p1, p0)
         nav.run(nb_steps)
         self.nav = nav

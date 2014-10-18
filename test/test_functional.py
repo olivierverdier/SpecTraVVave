@@ -21,10 +21,10 @@ class TestGeneral(unittest.TestCase):
         boundary = MeanZero()
         solver = Solver(discretization, boundary)
         nav = Navigator(solver.solve)
-        initial_guess = discretization.compute_initial_guess()
         initial_velocity = discretization.bifurcation_velocity()
         p1 = (initial_velocity, 0)
         epsilon = .1
+        initial_guess = discretization.compute_initial_guess(epsilon)
         p0 = (initial_velocity, -epsilon)
         nav.initialize(initial_guess, p1, p0)
         nav.run(1)
