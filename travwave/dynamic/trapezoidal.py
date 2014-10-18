@@ -9,8 +9,8 @@ class Trapezoidal_rule(object):
     """
     Dynamic integrator based on trapezoidal rule, 2nd order precision in dt (Li, Sattinger, 1998).  
     """
-    def __init__(self, Equation, wave, velocity):
-        self.eq = Equation
+    def __init__(self, equation, wave, velocity):
+        self.equation = equation
         self.u = wave
         self.velocity = velocity
 
@@ -30,17 +30,17 @@ class Trapezoidal_rule(object):
         """
         u = solution    
         NN = len(u) 
-        scale = self.eq.length/np.pi
+        scale = self.equation.length/np.pi
 
         # todo: use fft shift and freq instead
         centered_frequencies = 1/scale * np.concatenate((np.arange(1, NN/2+1, 1), np.arange(1-NN/2, 0, 1)))
-        kerne = 1j * centered_frequencies * self.eq.compute_kernel(centered_frequencies) 
+        kerne = 1j * centered_frequencies * self.equation.compute_kernel(centered_frequencies) 
         kernel = np.concatenate(([0], kerne))
         kernel[NN/2] = 0
 
         shifted_frequencies = np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
         
-        T = 2*self.eq.length/self.velocity
+        T = 2*self.equation.length/self.velocity
         dt = periods*T/nb_steps
 
         m = 0.5*dt*kernel
@@ -52,7 +52,7 @@ class Trapezoidal_rule(object):
 
         for i in range(nb_steps):
             fftu = fft(u)
-            fftuu = fft(self.eq.flux(u))
+            fftuu = fft(self.equation.flux(u))
 
             z1 = d1*fftu + d2*fftuu
             v = np.real(ifft(z1))
@@ -61,7 +61,7 @@ class Trapezoidal_rule(object):
             w = np.real(ifft(z2))
             
             def fixed(w):
-                z = ifft(d2*fft(self.eq.flux(w)))    
+                z = ifft(d2*fft(self.equation.flux(w)))    
                 w_new = v + z.real
                 return w_new
 
