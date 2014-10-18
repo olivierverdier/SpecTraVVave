@@ -10,7 +10,7 @@ from travwave.discretization import Discretization
 from travwave.boundary import *
 from travwave.solver import *
 from travwave.navigation import *
-from travwave.dynamic_code import *
+from travwave.dynamic import *
 
 
 class TestTrapezoidal(unittest.TestCase):
