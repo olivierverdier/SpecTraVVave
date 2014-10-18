@@ -42,10 +42,9 @@ class Solver(object):
             """
             wave, variables, extent = self.destruct(vector)
             parameter = compute_parameter(parameter_anchor, direction, extent)
-            self.equation.initialize(parameter)
             boundary_residual = self.boundary.enforce(wave, variables, parameter)
             parameter_residual = np.array([parameter[1] - wave[0] + wave[-1]])
-            main_residual = self.equation.residual(wave, variables)
+            main_residual = self.equation.residual(wave, parameter, variables)
             return np.hstack([main_residual, boundary_residual, parameter_residual])
         
         guess = self.construct(guess_wave, np.zeros(self.boundary.variables_num()), 0)

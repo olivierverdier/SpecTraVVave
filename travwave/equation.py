@@ -30,14 +30,11 @@ class Equation(object):
         self.linear_operator = self.compute_linear_operator()
 
          
-    def compute_shifted_operator(self, size):                                             
+    def compute_shifted_operator(self, size, parameters):                                             
         """
         Only used for testing purposes
         """
-        return (-1)*self.parameters[0]*np.eye(size) + self.linear_operator
-
-    def initialize(self, parameters):                                               
-        self.parameters = parameters
+        return (-1)*parameters[0]*np.eye(size) + self.linear_operator
 
     def general_linear_operator(self, weights, nodes):
         f = np.cos
@@ -51,8 +48,8 @@ class Equation(object):
     def compute_linear_operator(self):
         return self.general_linear_operator(weights=self.weights, nodes=self.nodes)
 
-    def residual(self, u, integrconst): 
-        return np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u) - integrconst
+    def residual(self, u, parameters, integrconst): 
+        return np.dot(self.linear_operator, u) - parameters[0]*u + self.flux(u) - integrconst
 
     def frequencies(self):
         return np.pi/self.length*np.arange(self.size, dtype=float)

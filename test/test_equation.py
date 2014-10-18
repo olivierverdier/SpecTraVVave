@@ -31,10 +31,10 @@ class HarnessEquation(object):
         npt.assert_allclose(computed, expected)
 
     def test_residual(self):
-        self.equation.initialize((2.,3.))
+        parameter = (2.,3.)
         u = np.random.rand(self.equation.size)
-        expected = np.dot(self.equation.compute_shifted_operator(self.equation.size), u) + self.equation.flux(u)
-        computed = self.equation.residual(u, 0)
+        expected = np.dot(self.equation.compute_shifted_operator(self.equation.size, parameter), u) + self.equation.flux(u)
+        computed = self.equation.residual(u, parameter, 0)
         npt.assert_allclose(computed, expected)
 
 class TestKDV(HarnessEquation, unittest.TestCase):
