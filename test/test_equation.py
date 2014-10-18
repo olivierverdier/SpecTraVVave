@@ -47,3 +47,24 @@ class TestKDV(HarnessEquation, unittest.TestCase):
 class TestWhitham(HarnessEquation, unittest.TestCase):
     def get_equation(self):
         return whitham.Whitham(1)
+
+class DummyDiscretization(Discretization):
+    def __init__(self, *args, **kwargs):
+        self._count = {}
+        super(DummyDiscretization, self).__init__(*args, **kwargs)
+
+    def compute_linear_operator(self):
+        self._count[self.size] = self._count.get(self.size, 0) + 1
+        return super(DummyDiscretization, self).compute_linear_operator()
+        
+class TestCaching(unittest.TestCase):
+    def test_caching(self):
+        start_size = 8
+        d = DummyDiscretization(kdv.KDV(1), start_size)
+        self.assertEqual(d._count[8], 1)
+        self.assertNotIn(16, d._count)
+        d.size = 16
+        self.assertEqual(d._count[16], 1)
+        d.size = 8
+        self.assertEqual(d._count[8], 1, "the operator of size 8 is not recomputed")
+

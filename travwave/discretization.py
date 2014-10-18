@@ -33,9 +33,9 @@ class Discretization(object):
     def size(self, size):
         self._size = size
         self.linear_operator = self._cached_operator.get(size)
-        if self.linear_operator is None:
+        if self.linear_operator is None: # not in cache for this size, so we recompute it
             self.linear_operator = self.compute_linear_operator()
-            self._cached_operator[size] = self.linear_operator
+            self._cached_operator[size] = self.linear_operator # and store it in the cache
          
     def compute_shifted_operator(self, size, parameters):                                             
         """
