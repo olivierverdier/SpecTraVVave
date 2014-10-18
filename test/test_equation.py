@@ -25,9 +25,9 @@ class HarnessEquation(object):
         npt.assert_allclose(computed, expected, rtol=1e-4)
 
     def test_linop(self):
-        weights = self.discretization.weights
+        weights = self.discretization.get_weights()
         f = lambda x: np.cos(np.pi/self.equation.length*x)
-        x = self.discretization.nodes
+        x = self.discretization.get_nodes()
         tensor = np.dstack([wk*(f(k*x) * f(k*x).reshape(-1,1)) for k, wk in enumerate(weights)])
         expected = np.sum(tensor, axis=2)
         computed = self.discretization.compute_linear_operator()

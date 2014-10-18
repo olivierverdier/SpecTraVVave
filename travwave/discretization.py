@@ -24,8 +24,6 @@ class Discretization(object):
         self.equation = equation
         self.size = size
         
-        self.weights = self.compute_weights()
-        self.nodes = self.compute_nodes()
 
         self.linear_operator = self.compute_linear_operator()
 
@@ -46,7 +44,7 @@ class Discretization(object):
         return linop
         
     def compute_linear_operator(self):
-        return self.general_linear_operator(weights=self.weights, nodes=self.nodes)
+        return self.general_linear_operator(weights=self.get_weights(), nodes=self.get_nodes())
 
     def residual(self, u, parameters, integrconst): 
         return np.dot(self.linear_operator, u) - parameters[0]*u + self.equation.flux(u) - integrconst
@@ -63,16 +61,16 @@ class Discretization(object):
     def shifted_kernel(self):
         return np.diag(-self.bifurcation_velocity() + self.image())
 
-    def compute_nodes(self):
+    def get_nodes(self):
         nodes = self.equation.length*(np.linspace(0, 1, self.size, endpoint=False) + 1/2/self.size)
         return nodes
 
     def compute_initial_guess(self, e=0.01):
-        xi1 = np.cos(np.pi/self.equation.length*self.nodes)
+        xi1 = np.cos(np.pi/self.equation.length*self.get_nodes())
         init_guess = e*xi1 
         return init_guess
 
-    def compute_weights(self):
+    def get_weights(self):
         image = self.image()
         weights = image*2/(len(image))
         weights[0] /= 2  

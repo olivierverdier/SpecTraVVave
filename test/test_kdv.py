@@ -66,7 +66,7 @@ class TestKDV(unittest.TestCase):
         self.B = store[1][0]
         self.c = store[2][0]
         self.amplitude = store[2][1]
-        self.xs = self.discretization.nodes
+        self.xs = self.discretization.get_nodes()
         self.computed = store[0]
 
     def get_residual_tolerance(self):
