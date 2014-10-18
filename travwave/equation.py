@@ -48,9 +48,6 @@ class Equation(object):
     def compute_linear_operator(self):
         return self.general_linear_operator(weights=self.weights, nodes=self.nodes)
 
-    def Jacobian(self, u):
-        return self.compute_shifted_operator + np.diag(self.flux_prime(u))
-
     def residual(self, u, integrconst): 
         return np.dot(self.linear_operator, u) - self.parameters[0]*u + self.flux(u) - integrconst
 
