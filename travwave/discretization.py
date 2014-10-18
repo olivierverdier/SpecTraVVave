@@ -21,12 +21,21 @@ _fast_make_linear_operator = numba.jit('void(f8[:,:], f8[:], f8[:,:])', nopython
 
 class Discretization(object):
     def __init__(self, equation, size):
+        self._cached_operator = {} # a dictionary containing cached linear operators
         self.equation = equation
         self.size = size
-        
 
-        self.linear_operator = self.compute_linear_operator()
-
+    @property
+    def size(self):
+        return self._size
+    
+    @size.setter
+    def size(self, size):
+        self._size = size
+        self.linear_operator = self._cached_operator.get(size)
+        if self.linear_operator is None:
+            self.linear_operator = self.compute_linear_operator()
+            self._cached_operator[size] = self.linear_operator
          
     def compute_shifted_operator(self, size, parameters):                                             
         """
