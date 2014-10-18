@@ -45,7 +45,10 @@ class Navigator(object):
         Iterates the solver N times, navigating over the bifurcation brach and storing found solutions.
         """
         for i in range(N):
-            current, variables, p2, p1 = self.store[-1]
-            pstar, direction = self.compute_direction(p1, p2)
-            new, variables, p3 = self.solve(current, pstar, direction)
-            self.store.append((new, variables, p3, p2))
+            self.step()
+
+    def step(self):
+        current, variables, p2, p1 = self.store[-1]
+        pstar, direction = self.compute_direction(p1, p2)
+        new, variables, p3 = self.solve(current, pstar, direction)
+        self.store.append((new, variables, p3, p2))
