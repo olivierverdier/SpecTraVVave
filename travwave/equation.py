@@ -76,9 +76,9 @@ class Equation(object):
         return init_guess
 
     def compute_weights(self):
-        ww = 2/self.size
-        weights = self.image()*ww  
-        weights[0] = weights[0]/2  
+        image = self.image()
+        weights = image*2/(len(image))
+        weights[0] /= 2  
         return weights
         
 
