@@ -113,11 +113,9 @@ class Whitham_scaled(Whitham):
         return whitham
     
     def flux(self, u):
-        scale = self.length/np.pi
         return 0.75*u**2  
 
     def flux_prime(self, u):
-        scale = self.length/np.pi
         return 1.5*u
 
 class Whitham3(Whitham):
