@@ -47,8 +47,19 @@ class Navigator(object):
         for i in range(N):
             self.step()
 
-    def step(self):
+    def prepare_step(self):
+        """
+        Return the necessary variables to run the solver.
+        """
         current, variables, p2, p1 = self.store[-1]
         pstar, direction = self.compute_direction(p1, p2)
+        return current, pstar, direction, p2
+
+    def run_solver(self, current, pstar, direction):
         new, variables, p3 = self.solve(current, pstar, direction)
+        return new, variables, p3
+
+    def step(self):
+        current, pstar, direction, p2 = self.prepare_step()
+        new, variables, p3 = self.run_solver(current, pstar, direction)
         self.store.append((new, variables, p3, p2))
