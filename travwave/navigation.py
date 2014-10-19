@@ -42,7 +42,7 @@ class Navigator(object):
 
     def run(self, N):
         """
-        Iterates the solver N times, navigating over the bifurcation brach and storing found solutions.
+        Iterates the solver N times, navigating over the bifurcation branch and storing found solutions.
         """
         for i in range(N):
             self.step()
