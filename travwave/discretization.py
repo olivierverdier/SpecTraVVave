@@ -19,6 +19,9 @@ def _make_linear_operator(linop, weights, fik):
     
 _fast_make_linear_operator = numba.jit('void(f8[:,:], f8[:], f8[:,:])', nopython=True)(_make_linear_operator)
 
+def get_nodes(size):
+    return np.linspace(0, 1, size, endpoint=False) + 1/2/size
+
 class Discretization(object):
     def __init__(self, equation, size):
         self._cached_operator = {} # a dictionary containing cached linear operators
@@ -71,7 +74,7 @@ class Discretization(object):
         return np.diag(-self.bifurcation_velocity() + self.image())
 
     def get_nodes(self):
-        nodes = self.equation.length*(np.linspace(0, 1, self.size, endpoint=False) + 1/2/self.size)
+        nodes = self.equation.length*(get_nodes(self.size))
         return nodes
 
     def compute_initial_guess(self, amplitude):
