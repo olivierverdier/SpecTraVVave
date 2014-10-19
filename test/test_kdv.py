@@ -52,15 +52,15 @@ class TestKDV(unittest.TestCase):
         self.discretization = Discretization(self.equation, size)
         self.boundary = self.get_boundary()
         solver = Solver(self.discretization, self.boundary)
-        nav = Navigator(solver.solve)
+        nb_steps = self.get_nbsteps()
+        nav = Navigator(solver.solve, size=size, doublings=0, correction_rate=nb_steps)
         initial_velocity = self.discretization.bifurcation_velocity()
         p1 = (initial_velocity, 0)
-        nb_steps = self.get_nbsteps()
         epsilon = .1/nb_steps
         p0 = (initial_velocity, -epsilon)
         initial_guess = self.discretization.compute_initial_guess(epsilon/10)
         nav.initialize(initial_guess, p1, p0)
-        nav.run(nb_steps)
+        nav.run(1)
         self.nav = nav
         store = nav.store[-1]
         self.B = store[1][0]
@@ -112,7 +112,7 @@ class TestKDVSoliton(TestKDV):
         return 50
 
     def get_nbsteps(self):
-        return 1
+        return 10
 
     def get_residual_tolerance(self):
         return 1e-4

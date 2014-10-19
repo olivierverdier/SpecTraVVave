@@ -1,4 +1,6 @@
 from __future__ import division
+
+from discretization import resample
     
 def ortho_direction(p1, p2, step):
     """
@@ -17,8 +19,17 @@ class Navigator(object):
     Runs the iterator and stores the result.
     """
 
-    def __init__(self, solve):
+    def __init__(self, solve, size=32, doublings=1, correction_rate=10):
+        """
+        solve: solve function
+        size: smallest size for the cheap steps
+        doublings: the number of size doublings for the corrections
+        correction_rate: how many steps between two corrections of highest size
+        """
         self.solve = solve
+        self.size = size
+        self.doublings = doublings
+        self.correction_rate = correction_rate
 
     def initialize (self, current, p, p0):
         """
@@ -45,7 +56,13 @@ class Navigator(object):
         Iterates the solver N times, navigating over the bifurcation branch and storing found solutions.
         """
         for i in range(N):
-            self.step()
+            # steps with low resolution
+            self.step(resampling=self.size)
+            for j in range(self.correction_rate - self.doublings - 1):
+                self.step()
+            # correction steps
+            for k in range(self.doublings):
+                self.step(resampling=self.size*2**(k+1))
 
     def prepare_step(self):
         """
@@ -59,7 +76,9 @@ class Navigator(object):
         new, variables, p3 = self.solve(current, pstar, direction)
         return new, variables, p3
 
-    def step(self):
+    def step(self, resampling=None):
         current, pstar, direction, p2 = self.prepare_step()
+        if resampling is not None:
+            current = resample(current, resampling)
         new, variables, p3 = self.run_solver(current, pstar, direction)
         self.store.append((new, variables, p3, p2))

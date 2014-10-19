@@ -21,14 +21,14 @@ class TestTrapezoidal(unittest.TestCase):
         discretization = Discretization(equation, size)
         boundary = Minimum()
         solver = Solver(discretization, boundary)
-        nav = Navigator(solver.solve)
+        nav = Navigator(solver.solve, size=size, doublings=0, correction_rate=10)
         initial_velocity = discretization.bifurcation_velocity()
         p1 = (initial_velocity, 0)
         epsilon = .01
         p0 = (initial_velocity, -epsilon)
         initial_guess = discretization.compute_initial_guess(epsilon)
         nav.initialize(initial_guess, p1, p0)
-        nav.run(10)
+        nav.run(1)
 
         u = nav.store[-1][0]
         velocity = nav.store[-1][2][0]

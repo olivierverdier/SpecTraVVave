@@ -35,6 +35,9 @@ class Solver(object):
         """
         Runs a Newton solver on a system of nonlinear equations once. Takes the residual(vector) as the system to solve. 
         """
+        size = len(guess_wave)
+        self.discretization.size = size
+
         def residual(vector):
             """
             Contructs a system of nonlinear equations. First part, main_residual, is from given wave equation; 
