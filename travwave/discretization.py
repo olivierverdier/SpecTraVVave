@@ -3,8 +3,6 @@ from __future__ import division
 import numpy as np
 import numba
 
-import scipy.interpolate
-
 def _make_linear_operator(linop, weights, fik):
     """
     fik: array(n,k)
@@ -30,9 +28,9 @@ def resample(wave, new_size):
     wave_bc[0] = wave_bc[1]
     wave_bc[-1] = wave_bc[-2]
     size = len(wave)
-    spline = scipy.interpolate.UnivariateSpline(get_nodes(size), wave)
     new_nodes = get_nodes(new_size)
-    return spline(new_nodes)
+    resampled = np.interp(new_nodes, get_nodes(size), wave)
+    return resampled
 
 
 class Discretization(object):
