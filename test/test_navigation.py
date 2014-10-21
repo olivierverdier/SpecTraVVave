@@ -33,12 +33,18 @@ class TestDummyNavigation(unittest.TestCase):
         N = 20
         corr_rate = 10
         doublings = 1
-        nav = Navigator(dummy_solver, doublings=doublings, correction_rate=corr_rate)
-        x0 = np.ones(10)
+        low_size = 24
+        nav = Navigator(dummy_solver, size=low_size, doublings=doublings, correction_rate=corr_rate)
+        init_size = 50
+        x0 = np.ones(init_size)
         nav.initialize(x0, (1.,0), (0.,0))
         nav.run(N)
         points = [a['solution'] for a in nav]
-        self.assertEqual(len(nav), len(points))
+        self.assertEqual(len(nav), len(points), msg="Possible to compute the length of a Navigation object")
+        self.assertEqual(len(nav), corr_rate*N+1, msg="Total size is number of steps times the correction rate")
+        self.assertEqual(len(nav[corr_rate]['solution']),low_size*2, msg="At first correction, the solution has the double size")
+        self.assertEqual([len(nav[n]['solution']) for n in range(1,corr_rate)], (corr_rate-1)*[low_size], msg="Number of point with low resolution navigation")
+        self.assertEqual(len(nav[0]['solution']), init_size, msg="Right size of the initialized navigation point")
         ## npt.assert_allclose(np.array(points), np.arange(N+1) + x0)
       
         for i in range(N):
