@@ -37,7 +37,7 @@ class Navigator(object):
         """
         self.store = []
         variables = [0]
-        self.store.append((current, variables, p, p0))
+        self.store.append({'solution': current, 'integration constant': variables, 'velocity': p[0], 'amplitude':p[1], 'previous velocity': p0[0], 'previous amplitude': p0[1]})
 
     def parameter_step(self):
         """
@@ -68,7 +68,12 @@ class Navigator(object):
         """
         Return the necessary variables to run the solver.
         """
-        current, variables, p2, p1 = self.store[-1]
+#        {'solution': current, 'integration constant': variables, 'velocity': p2[0], 'amplitude':p2[1], 'previous velocity': p1[0], 'previous amplitude': p1[1]} = self.store[-1]
+        current = self.store[-1]['solution']
+#        variables = self.store[-1]['integration constant']
+        p2 = (self.store[-1]['velocity'], self.store[-1]['amplitude'])
+        p1 = (self.store[-1]['previous velocity'], self.store[-1]['previous amplitude'])
+#        current, variables, p2, p1 = self.store[-1]
         pstar, direction = self.compute_direction(p1, p2)
         return current, pstar, direction, p2
 
@@ -81,4 +86,5 @@ class Navigator(object):
         if resampling is not None:
             current = resample(current, resampling)
         new, variables, p3 = self.run_solver(current, pstar, direction)
-        self.store.append((new, variables, p3, p2))
+        self.store.append({'solution': new, 'integration constant': variables, 'velocity': p3[0], 'amplitude':p3[1], 'previous velocity': p2[0], 'previous amplitude': p2[1]})
+#        self.store.append((new, variables, p3, p2))

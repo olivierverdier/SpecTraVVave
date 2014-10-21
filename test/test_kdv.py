@@ -63,11 +63,11 @@ class TestKDV(unittest.TestCase):
         nav.run(1)
         self.nav = nav
         store = nav.store[-1]
-        self.B = store[1][0]
-        self.c = store[2][0]
-        self.amplitude = store[2][1]
+        self.B = store['integration constant']
+        self.c = store['velocity']
+        self.amplitude = store['amplitude']
         self.xs = self.discretization.get_nodes()
-        self.computed = store[0]
+        self.computed = store['solution']
 
     def get_residual_tolerance(self):
         return 1e-6
