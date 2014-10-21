@@ -40,4 +40,4 @@ class TestTrapezoidal(unittest.TestCase):
         xx = np.arange(-length, length, length/size)
         error = t_wave - uu
         print max(abs(error))
-        npt.assert_allclose(t_wave, uu, atol=1e-3)
+        npt.assert_allclose(t_wave, uu, atol=1e-3, err_msg="Wave is equal to itself after travelling one period")

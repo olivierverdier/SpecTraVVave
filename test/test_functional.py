@@ -13,6 +13,10 @@ from travwave.boundary import *
 import numpy as np
 
 class TestGeneral(unittest.TestCase):
+    """
+    Only tests that the problem can be set up and run without raising any exception.
+    No tests are actually performed.
+    """
     def test_run(self):
         size = 10
         length = np.pi

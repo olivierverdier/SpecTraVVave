@@ -73,10 +73,16 @@ class TestKDV(unittest.TestCase):
         return 1e-6
 
     def test_residual(self):
+        """
+        Discretized residual is below tolerance when applied to the computed solution.
+        """
         res = self.residual(self.c, self.B, self.xs, self.computed)
         npt.assert_allclose(res, 0, atol=self.get_residual_tolerance())
 
     def test_boundary(self):
+        """
+        Correct boundary conditions are enforced in the solution.
+        """
         level = self.boundary.level
         npt.assert_allclose(min(self.computed), level, atol=1e-15)
         
@@ -121,6 +127,9 @@ class TestKDVSoliton(TestKDV):
         return Minimum(0)
 
     def test_soliton(self):
+        """
+        With a sufficiently great length, the travelling wave is close to a soliton.
+        """
         expected = soliton(self.amplitude, self.xs)
         npt.assert_allclose(self.computed, expected, atol=1e-3)
 
