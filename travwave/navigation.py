@@ -18,7 +18,7 @@ class Navigator(object):
     """
     Runs the iterator and stores the result.
     """
-
+    
     def __init__(self, solve, size=32, doublings=1, correction_rate=10):
         """
         solve: solve function
@@ -30,14 +30,16 @@ class Navigator(object):
         self.size = size
         self.doublings = doublings
         self.correction_rate = correction_rate
-
+        self.velocity_ = 0
+        self.amplitude_ = 1
+        
     def initialize (self, current, p, p0):
         """
         Creates a list for solutions and stores the first solution (initial guess).
         """
         self.store = []
         variables = [0]
-        self.store.append({'solution': current, 'integration constant': variables, 'velocity': p[0], 'amplitude':p[1], 'previous velocity': p0[0], 'previous amplitude': p0[1]})
+        self.store.append({'solution': current, 'integration constant': variables, 'current': p, 'previous': p0 })
 
     def parameter_step(self):
         """
@@ -68,12 +70,9 @@ class Navigator(object):
         """
         Return the necessary variables to run the solver.
         """
-#        {'solution': current, 'integration constant': variables, 'velocity': p2[0], 'amplitude':p2[1], 'previous velocity': p1[0], 'previous amplitude': p1[1]} = self.store[-1]
         current = self.store[-1]['solution']
-#        variables = self.store[-1]['integration constant']
-        p2 = (self.store[-1]['velocity'], self.store[-1]['amplitude'])
-        p1 = (self.store[-1]['previous velocity'], self.store[-1]['previous amplitude'])
-#        current, variables, p2, p1 = self.store[-1]
+        p2 = self.store[-1]['current']
+        p1 = self.store[-1]['previous']
         pstar, direction = self.compute_direction(p1, p2)
         return current, pstar, direction, p2
 
@@ -86,5 +85,4 @@ class Navigator(object):
         if resampling is not None:
             current = resample(current, resampling)
         new, variables, p3 = self.run_solver(current, pstar, direction)
-        self.store.append({'solution': new, 'integration constant': variables, 'velocity': p3[0], 'amplitude':p3[1], 'previous velocity': p2[0], 'previous amplitude': p2[1]})
-#        self.store.append((new, variables, p3, p2))
+        self.store.append({'solution': new, 'integration constant': variables, 'current': p3, 'previous': p2})

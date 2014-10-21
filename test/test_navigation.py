@@ -40,18 +40,14 @@ class TestDummyNavigation(unittest.TestCase):
         points = [a['solution'] for a in nav.store]
         ## npt.assert_allclose(np.array(points), np.arange(N+1) + x0)
       
-        def get_store(store):
-            x = store['solution']
-            v = store['integration constant']
-            p2 = (store['velocity'], store['amplitude']) 
-            p1 = (store['previous velocity'], store['previous amplitude'])
-            return x, v, p2, p1
-            
-        for (x, v, p2, p1), (x_, v_,p2_,p1_) in zip(get_store(nav.store[:-1]), get_store(nav.store[1:])):
+        for i in range(N):
+            p2 = nav.store[i]['current']
+            p1_ = nav.store[i+1]['previous']
             self.assertEqual(p2, p1_) # parameter is properly passed at the next stage
-        py = [a['velocity'] for a in nav.store]
+
+        py = [a['current'][nav.amplitude_] for a in nav.store]
         npt.assert_allclose(np.array(py), 0.) # no move in the y direction because of our dummy solver
-        px = [a['previous velocity'] for a in nav.store]
+        px = [a['previous'][nav.velocity_] for a in nav.store]
         npt.assert_allclose(np.array(px), np.arange(N*corr_rate+1)) # steady move because of step function
 
 
