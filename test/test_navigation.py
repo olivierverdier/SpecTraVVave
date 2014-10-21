@@ -22,12 +22,12 @@ class TestDummyNavigation(unittest.TestCase):
         computed = ortho_direction(p0, p1, step=1)
         expected_pstar = (2, 0)
         computed_pstar = computed[0]
-        self.assertIsInstance(computed_pstar, tuple)
-        npt.assert_allclose(computed_pstar, expected_pstar)
+        self.assertIsInstance(computed_pstar, tuple, msg="stored parameter is a tuple")
+        npt.assert_allclose(computed_pstar, expected_pstar, err_msg="computed parameters are right")
         expected_direction = (0,1)
         computed_direction = computed[1]
-        self.assertIsInstance(computed_direction, tuple)
-        self.assertEqual(computed_direction[0]*dp[0] + computed_direction[1]*dp[1], 0)
+        self.assertIsInstance(computed_direction, tuple, msg="direction is a tuple")
+        self.assertEqual(computed_direction[0]*dp[0] + computed_direction[1]*dp[1], 0, msg="direction is orthogonal to the line joining the two previous parameter points")
 
     def test_nav(self):
         N = 20
@@ -50,12 +50,12 @@ class TestDummyNavigation(unittest.TestCase):
         for i in range(N):
             p2 = nav[i]['current']
             p1_ = nav[i+1]['previous']
-            self.assertEqual(p2, p1_) # parameter is properly passed at the next stage
+            self.assertEqual(p2, p1_, msg="parameter is properly passed at the next stage")
 
         py = [a['current'][nav.amplitude_] for a in nav]
-        npt.assert_allclose(np.array(py), 0.) # no move in the y direction because of our dummy solver
+        npt.assert_allclose(np.array(py), 0., err_msg="no move in the y direction because of our dummy solver")
         px = [a['previous'][nav.velocity_] for a in nav]
-        npt.assert_allclose(np.array(px), np.arange(N*corr_rate+1)) # steady move because of step function
+        npt.assert_allclose(np.array(px), np.arange(N*corr_rate+1), err_msg="steady move because of step function")
         def assign_nav():
             nav[0] = None
         self.assertRaises(TypeError, assign_nav, msg="Assignment not possible for Navigation object")
