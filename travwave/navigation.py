@@ -33,13 +33,19 @@ class Navigator(object):
         self.velocity_ = 0
         self.amplitude_ = 1
         
+    def __getitem__(self, index):
+        return self._stored_values[index]
+
+    def __len__(self):
+        return len(self._stored_values)
+
     def initialize (self, current, p, p0):
         """
         Creates a list for solutions and stores the first solution (initial guess).
         """
-        self.store = []
+        self._stored_values = []
         variables = [0]
-        self.store.append({'solution': current, 'integration constant': variables, 'current': p, 'previous': p0 })
+        self._stored_values.append({'solution': current, 'integration constant': variables, 'current': p, 'previous': p0 })
 
     def parameter_step(self):
         """
@@ -70,9 +76,9 @@ class Navigator(object):
         """
         Return the necessary variables to run the solver.
         """
-        current = self.store[-1]['solution']
-        p2 = self.store[-1]['current']
-        p1 = self.store[-1]['previous']
+        current = self._stored_values[-1]['solution']
+        p2 = self._stored_values[-1]['current']
+        p1 = self._stored_values[-1]['previous']
         pstar, direction = self.compute_direction(p1, p2)
         return current, pstar, direction, p2
 
@@ -85,4 +91,4 @@ class Navigator(object):
         if resampling is not None:
             current = resample(current, resampling)
         new, variables, p3 = self.run_solver(current, pstar, direction)
-        self.store.append({'solution': new, 'integration constant': variables, 'current': p3, 'previous': p2})
+        self._stored_values.append({'solution': new, 'integration constant': variables, 'current': p3, 'previous': p2})

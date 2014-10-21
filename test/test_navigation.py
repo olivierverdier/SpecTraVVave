@@ -37,17 +37,21 @@ class TestDummyNavigation(unittest.TestCase):
         x0 = np.ones(10)
         nav.initialize(x0, (1.,0), (0.,0))
         nav.run(N)
-        points = [a['solution'] for a in nav.store]
+        points = [a['solution'] for a in nav]
+        self.assertEqual(len(nav), len(points))
         ## npt.assert_allclose(np.array(points), np.arange(N+1) + x0)
       
         for i in range(N):
-            p2 = nav.store[i]['current']
-            p1_ = nav.store[i+1]['previous']
+            p2 = nav[i]['current']
+            p1_ = nav[i+1]['previous']
             self.assertEqual(p2, p1_) # parameter is properly passed at the next stage
 
-        py = [a['current'][nav.amplitude_] for a in nav.store]
+        py = [a['current'][nav.amplitude_] for a in nav]
         npt.assert_allclose(np.array(py), 0.) # no move in the y direction because of our dummy solver
-        px = [a['previous'][nav.velocity_] for a in nav.store]
+        px = [a['previous'][nav.velocity_] for a in nav]
         npt.assert_allclose(np.array(px), np.arange(N*corr_rate+1)) # steady move because of step function
+        def assign_nav():
+            nav[0] = None
+        self.assertRaises(TypeError, assign_nav, msg="Assignment not possible for Navigation object")
 
 

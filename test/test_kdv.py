@@ -62,7 +62,7 @@ class TestKDV(unittest.TestCase):
         nav.initialize(initial_guess, p1, p0)
         nav.run(1)
         self.nav = nav
-        store = nav.store[-1]
+        store = nav[-1]
         self.B = store['integration constant']
         self.c = store['current'][nav.velocity_]
         self.amplitude = store['current'][nav.amplitude_]

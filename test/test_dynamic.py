@@ -30,8 +30,8 @@ class TestTrapezoidal(unittest.TestCase):
         nav.initialize(initial_guess, p1, p0)
         nav.run(1)
 
-        u = nav.store[-1]['solution']
-        velocity = nav.store[-1]['current'][nav.velocity_]
+        u = nav[-1]['solution']
+        velocity = nav[-1]['current'][nav.velocity_]
         #dyn = DeFrutos_SanzSerna(equation, u, velocity)
         dyn = Trapezoidal_rule(equation, u, velocity)
         uu = dyn.mirror()
