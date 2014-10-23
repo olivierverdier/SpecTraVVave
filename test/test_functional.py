@@ -22,7 +22,7 @@ class TestGeneral(unittest.TestCase):
         length = np.pi
         equation = kdv.KDV(length)
         discretization = Discretization(equation, size)
-        boundary = MeanZero()
+        boundary = Mean()
         solver = Solver(discretization, boundary)
         nav = Navigator(solver.solve)
         initial_velocity = discretization.bifurcation_velocity()

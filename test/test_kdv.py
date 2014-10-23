@@ -102,7 +102,7 @@ class TestKDV(unittest.TestCase):
 
 class TestKDVMean(TestKDV):
     def get_boundary(self):
-        return MeanZero()
+        return Mean()
 
     @unittest.skip("Remove when Mean boundary condition is implemented")
     def test_boundary(self):
