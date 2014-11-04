@@ -38,15 +38,15 @@ class Trapezoidal_rule(object):
         kernel = np.concatenate(([0], kerne))
         kernel[NN/2] = 0
 
-        shifted_frequencies = np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
+        shifted_frequencies = 1/scale * np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
         
-        T = 2*self.equation.length/self.velocity
-        dt = periods*T/nb_steps
+        T = 2 * self.equation.length / self.velocity
+        dt = periods * T / nb_steps
 
-        m = 0.5*dt*kernel
+        m = 0.5 * dt * kernel
         d1 = (1-m)/(1+m)
         d1[NN/2] = 0
-        d2 = -0.5/scale * 1j*dt*shifted_frequencies/(1+m)
+        d2 = -0.5 * 1j * dt * shifted_frequencies/(1+m)
         
         eps = 1e-10
 
@@ -60,7 +60,7 @@ class Trapezoidal_rule(object):
             z2 = d1*fftu + 2*d2*fftuu 
             w = np.real(ifft(z2))
             
-            def fixed(w):
+            def fixedpoint(w):
                 z = ifft(d2*fft(self.equation.flux(w)))    
                 w_new = v + z.real
                 return w_new
@@ -68,7 +68,7 @@ class Trapezoidal_rule(object):
             maxit = 10000
 
             for it in xrange(maxit):
-                w_new = fixed(w)
+                w_new = fixedpoint(w)
                 diff = w_new - w
                 err = abs(np.max(diff))
                 if err < eps:

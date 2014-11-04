@@ -17,22 +17,24 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         Constructs operators used in integration.
         """
         beta = ( 2 + 2**(1/3) + 2**(-1/3) )/3
-        N = 2*self.eq.size
-        p = self.eq.degree()-1
+        NN = 2*len(self.u)
+        p = self.equation.degree()-1
         dt = timestep
-        scale = self.eq.length/np.pi
+        scale = self.equation.length/np.pi
         
-        k = np.concatenate((np.arange(1, N/2+1, 1), np.arange(1-N/2, 0, 1)))
-        kerne =  1j * k * self.eq.compute_kernel(k) 
+        centered_frequencies = 1/scale * np.concatenate((np.arange(1, NN/2+1, 1), np.arange(1-NN/2, 0, 1)))
+        kerne = 1j * centered_frequencies * self.equation.compute_kernel(centered_frequencies) 
         kernel = np.concatenate(([0], kerne))
-        kernel[N/2] = 0
-        k = np.concatenate((np.arange(0, N/2, 1), [0], np.arange(1-N/2, 0, 1)))    
+        kernel[NN/2] = 0
+
+        shifted_frequencies = 1/scale * np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
+        
         m = -0.5*dt*kernel
         
         m1 = 1./( 1 - beta*m );
-        m2 = ( 1.5 * beta * dt * 1j * k/(2*(p+1)) )*m1; 
+        m2 = ( 1.5 * beta * dt * 1j * shifted_frequencies/(2*(p+1)) )*m1; 
         mm1 = 1./( 1 - (1-2*beta)*m );
-        mm2 = ( 1.5 * (1-2*beta) * dt * 1j * k/(2*(p+1)) )*mm1;
+        mm2 = ( 1.5 * (1-2*beta) * dt * 1j * shifted_frequencies/(2*(p+1)) )*mm1;
         
         return m1, m2, mm1, mm2
     
@@ -71,7 +73,7 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         """
         beta = ( 2 + 2**(1/3) + 2**(-1/3) )/3
         
-        p = self.eq.degree()-1
+        p = self.equation.degree()-1
         u = wave_profile
 
         #  ---------- STEP ONE ------------ #
@@ -117,17 +119,16 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         u = unew
         return u
     
-    def evolution(self, solution, dt = 0.001, periods = 1):
+    def evolution(self, solution, nb_steps=1000, periods = 1):
         """
         
         """
         u = solution                  
 
-        T = 2*self.eq.length/self.velocity
-        t = dt
+        T = 2*self.equation.length/self.velocity
+        dt = periods*T/nb_steps
         m1, m2, mm1, mm2 = self.multipliers(timestep=dt)
-        while t < periods*T+dt:
+        for i in range(nb_steps):
             w = self.integrator(wave_profile = u, m1=m1, m2=m2, mm1=mm1, mm2=mm2)
             u = w
-            t = t + dt
         return u

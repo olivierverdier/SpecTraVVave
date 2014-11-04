@@ -11,9 +11,6 @@ class Kawahara (Equation):
     def degree(self):
         return 2
 
-    def flux_coefficient(self):
-        return 3/4
-
     def compute_kernel(self, k):
         kp = 1
         return 1.0+0.5*kp*k**2 + 1.0/90*k**4
