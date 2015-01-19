@@ -18,7 +18,7 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         """
         beta = ( 2 + 2**(1/3) + 2**(-1/3) )/3
         NN = 2*len(self.u)
-        p = self.equation.degree()-1
+        p = self.equation.degree()
         dt = timestep
         scale = self.equation.length/np.pi
         
@@ -32,9 +32,9 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         m = -0.5*dt*kernel
         
         m1 = 1./( 1 - beta*m );
-        m2 = ( 1.5 * beta * dt * 1j * shifted_frequencies/(2*(p+1)) )*m1; 
+        m2 = ( self.equation.flux_prime(1) * beta * dt * 1j * shifted_frequencies/(2*p) )*m1; 
         mm1 = 1./( 1 - (1-2*beta)*m );
-        mm2 = ( 1.5 * (1-2*beta) * dt * 1j * shifted_frequencies/(2*(p+1)) )*mm1;
+        mm2 = ( self.equation.flux_prime(1) * (1-2*beta) * dt * 1j * shifted_frequencies/(2*p) )*mm1;
         
         return m1, m2, mm1, mm2
     
