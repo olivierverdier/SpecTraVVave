@@ -10,7 +10,7 @@ from __future__ import division
 import numpy as np
 from scipy.integrate import trapz
 
-class ConstZero(object):
+class Const(object):
     """
     The boundary condition under which the constant of integration (B) is not considered in
     the system and always set to zero.
@@ -31,7 +31,7 @@ class ConstZero(object):
         """
         return 1
 
-class Mean(ConstZero):
+class Mean(Const):
     """
     The boundary condition under which the constant of integration (B) is considered as an unknown and
     is a part of the solution of the system. The new unknown balanced with the requirement that the mean 
@@ -40,7 +40,7 @@ class Mean(ConstZero):
     def enforce(self, wave, variables, parameters):
         return np.hstack([sum(wave) - self.level])
 
-class Minimum(ConstZero):
+class Minimum(Const):
     """
     The boundary condition under which the constant of integration (B) is not considered in
     the system and always set to zero. The right-most element of the solution wave is always considered to be zero,
