@@ -10,11 +10,12 @@ class Whitham(Equation):
         return 2    
 
     def compute_kernel(self,k):
-        if k[0] == 0:
-            k1 = k[1:]
-            whitham = np.concatenate( ([1], np.sqrt(1./k1*np.tanh(k1))))
-        else:    
-            whitham  = np.sqrt(1./k*np.tanh(k))        
+        whitham = np.zeros(len(k))
+        for i in range(len(k)):        
+            if k[i] == 0:
+                whitham[i] = 1
+            else:    
+                whitham[i]  = np.sqrt(1./k[i]*np.tanh(k[i]))        
         return whitham
         
     def flux(self, u):

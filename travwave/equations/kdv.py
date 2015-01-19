@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# coding: UTF-8
 from __future__ import division
 
 from base import Equation
@@ -10,9 +8,6 @@ class KDV(Equation):
     """
     def degree(self):
         return 2
-
-    def flux_coefficient(self):
-        return 3/4
 
     def compute_kernel(self, k):
         return 1.0-1.0/6*k**2
