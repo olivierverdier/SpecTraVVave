@@ -15,10 +15,10 @@ class TestGeneral(unittest.TestCase):
     def test_run(self):
         length = 5
         equation = kdv.KDV(length)
-        bd = BifurcationDiagram(equation)
-        bd.set_boundary(ConstZero())
-        bd.run(iter_numb=10)
-        print 'Amplitude = ', bd.result[-1]['current'][1]
+        boundary_cond = Const()
+        bd = BifurcationDiagram(equation, boundary_cond)
+        bd.navigation.run(10)
+        print 'Amplitude = ', bd.navigation[-1]['current'][bd.navigation.amplitude_]
 
 if __name__ == '__main__':
     unittest.main()

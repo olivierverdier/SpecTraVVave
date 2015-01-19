@@ -6,11 +6,9 @@ import unittest
 import numpy.testing as npt
 
 from travwave.equations import *
-from travwave.discretization import Discretization
 from travwave.boundary import *
-from travwave.solver import *
-from travwave.navigation import *
 from travwave.dynamic import *
+from travwave.diagram import *
 
 
 class TestTrapezoidal(unittest.TestCase):
@@ -18,22 +16,33 @@ class TestTrapezoidal(unittest.TestCase):
         size = 128
         length = 3*np.pi
         equation = kdv.KDV(length)
-        discretization = Discretization(equation, size)
-        boundary = Minimum()
-        solver = Solver(discretization, boundary)
-        nav = Navigator(solver.solve, size=size, doublings=0, correction_rate=10)
-        initial_velocity = discretization.bifurcation_velocity()
-        p1 = (initial_velocity, 0)
-        epsilon = .01
-        p0 = (initial_velocity, -epsilon)
-        initial_guess = discretization.compute_initial_guess(epsilon)
-        nav.initialize(initial_guess, p1, p0)
-        nav.run(1)
+        boundary_cond = Const()
+        bd = BifurcationDiagram(equation, boundary_cond)        
+        bd.navigation.run(10)
 
-        u = nav[-1]['solution']
-        velocity = nav[-1]['current'][nav.velocity_]
-        #dyn = DeFrutos_SanzSerna(equation, u, velocity)
+        u = bd.navigation[-1]['solution']
+        velocity = bd.navigation[-1]['current'][bd.navigation.velocity_]
         dyn = Trapezoidal_rule(equation, u, velocity)
+        uu = dyn.mirror()
+        t_wave = dyn.evolution(solution = uu, nb_steps=int(1e2), periods = 1)
+
+        xx = np.arange(-length, length, length/size)
+        error = t_wave - uu
+        print max(abs(error))
+        npt.assert_allclose(t_wave, uu, atol=1e-3, err_msg="Wave is equal to itself after travelling one period")
+
+class TestDeFrutos(unittest.TestCase):
+    def test(self):
+        size = 128
+        length = 3*np.pi
+        equation = kdv.KDV(length)
+        boundary_cond = Const()
+        bd = BifurcationDiagram(equation, boundary_cond)
+        bd.navigation.run(10)
+
+        u = bd.navigation[-1]['solution']
+        velocity = bd.navigation[-1]['current'][bd.navigation.velocity_]
+        dyn = DeFrutos_SanzSerna(equation, u, velocity)
         uu = dyn.mirror()
         t_wave = dyn.evolution(solution = uu, nb_steps=int(1e2), periods = 1)
 

@@ -110,7 +110,7 @@ class TestKDVMean(TestKDV):
 
 class TestKDVConstZero(TestKDVMean):
     def get_boundary(self):
-        return ConstZero()
+        return Const()
 
 
 class TestKDVSoliton(TestKDV):
