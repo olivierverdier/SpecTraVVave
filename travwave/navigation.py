@@ -45,19 +45,13 @@ class Navigator(object):
         """
         self._stored_values = []
         variables = [0]
-        self._stored_values.append({'solution': current, 'integration constant': variables, 'current': p, 'previous': p0 })
+        self._stored_values.append({'solution': resample(current, self.size), 'integration constant': variables, 'current': p, 'previous': p0 })
 
-    def parameter_step(self):
-        """
-        Estimate a parameter step.
-        """
-        return 1.
-
-    def compute_direction(self, p1, p2):
+    def compute_direction(self, p1, p2, step):
         """
         Strategy for a new parameter direction search.
         """
-        return ortho_direction(p1, p2, self.parameter_step())
+        return ortho_direction(p1, p2, step)
 
     def run(self, N):
         """
@@ -65,30 +59,36 @@ class Navigator(object):
         """
         for i in range(N):
             # steps with low resolution
-            self.step(resampling=self.size)
-            for j in range(self.correction_rate - self.doublings - 1):
+            for j in range(self.correction_rate):
                 self.step()
             # correction steps
             for k in range(self.doublings):
-                self.step(resampling=self.size*2**(k+1))
+                self.correction(resampling=self.size*2**(k+1))
+            # back to low resolution:
+            self.correction(resampling=self.size)
 
-    def prepare_step(self):
+    def prepare_step(self,step):
         """
         Return the necessary variables to run the solver.
         """
-        current = self._stored_values[-1]['solution']
         p2 = self._stored_values[-1]['current']
         p1 = self._stored_values[-1]['previous']
-        pstar, direction = self.compute_direction(p1, p2)
-        return current, pstar, direction, p2
+        pstar, direction = self.compute_direction(p1, p2, step)
+        return pstar, direction, p1, p2
 
     def run_solver(self, current, pstar, direction):
         new, variables, p3 = self.solve(current, pstar, direction)
         return new, variables, p3
 
-    def step(self, resampling=None):
-        current, pstar, direction, p2 = self.prepare_step()
-        if resampling is not None:
-            current = resample(current, resampling)
+    def correction(self, resampling):
+        current = self._stored_values[-1]['solution']
+        current = resample(current, resampling)
+        pstar, direction, p1, p2 = self.prepare_step(0.)
+        new, variables, p3 = self.run_solver(current, pstar, direction)
+        self._stored_values.append({'solution': new, 'integration constant': variables, 'current': p3, 'previous': p1})
+
+    def step(self):
+        pstar, direction, _, p2 = self.prepare_step(1.)
+        current = self._stored_values[-1]['solution']
         new, variables, p3 = self.run_solver(current, pstar, direction)
         self._stored_values.append({'solution': new, 'integration constant': variables, 'current': p3, 'previous': p2})
