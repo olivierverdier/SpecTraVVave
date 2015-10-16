@@ -1,3 +1,3 @@
-import kdv
-import whitham
-import benjamin
+from . import kdv
+from . import whitham
+from . import benjamin

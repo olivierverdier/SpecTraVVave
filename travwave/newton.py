@@ -66,7 +66,7 @@ class Newton(RootSolver):
 		Run the Newton iteration.
 		"""
 		x = self.get_initial(x0)
-		for i in xrange(self.maxiter):
+		for i in range(self.maxiter):
 			d = self.der(x)
 			y = self.level - self.residual(x)
 			if np.isscalar(y):
@@ -117,12 +117,12 @@ class MultipleSolver(object):
 			try:
 				root = solver.run(guess)
 			except solver.DidNotConverge as e:
+				last_exception = e
 				logging.info("Switch nonlinear solver")
 			else:
 				return root
 		else:
-			raise e
-
+			raise last_exception
 
 
 

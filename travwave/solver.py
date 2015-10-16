@@ -1,7 +1,7 @@
 from __future__ import division
 
 import numpy as np
-import newton
+from . import newton
 
 def compute_parameter(parameter, direction, extent):
     """

@@ -5,7 +5,7 @@ from __future__ import division
 import numpy as np
 from scipy.fftpack import fft, ifft, dct 
 
-from trapezoidal import Trapezoidal_rule
+from .trapezoidal import Trapezoidal_rule
 
 class DeFrutos_SanzSerna(Trapezoidal_rule):
     """

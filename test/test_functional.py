@@ -32,7 +32,7 @@ class TestGeneral(unittest.TestCase):
         p0 = (initial_velocity, -epsilon)
         nav.initialize(initial_guess, p1, p0)
         nav.run(1)
-        print nav[1]
+        print(nav[1])
 
 if __name__ == '__main__':
     unittest.main()

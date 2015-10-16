@@ -27,7 +27,7 @@ class TestTrapezoidal(unittest.TestCase):
         t_wave = dyn.evolution(solution = uu, nb_steps=int(1e2), periods = 1)
 
         error = t_wave - uu
-        print max(abs(error))
+        print(max(abs(error)))
         npt.assert_allclose(t_wave, uu, atol=1e-3, err_msg="Wave is equal to itself after travelling one period")
 
 class TestDeFrutos(unittest.TestCase):
@@ -48,5 +48,5 @@ class TestDeFrutos(unittest.TestCase):
 
         xx = np.arange(-length, length, length/size)
         error = t_wave - uu
-        print max(abs(error))
+        print(max(abs(error)))
         npt.assert_allclose(t_wave, uu, atol=1e-3, err_msg="Wave is equal to itself after travelling one period")

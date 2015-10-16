@@ -1,6 +1,6 @@
 from __future__ import division
 
-from base import Equation
+from .base import Equation
 
 class KDV(Equation):
     """

@@ -2,7 +2,7 @@
 # coding: UTF-8
 from __future__ import division
 
-from base import Equation
+from .base import Equation
 
 class Kawahara (Equation):
     """

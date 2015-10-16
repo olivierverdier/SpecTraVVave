@@ -1,6 +1,6 @@
 from __future__ import division
 
-from discretization import resample
+from .discretization import resample
     
 def ortho_direction(p1, p2, step):
     """
