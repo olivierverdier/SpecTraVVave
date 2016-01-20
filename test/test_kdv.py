@@ -4,11 +4,13 @@ from __future__ import division
 
 import unittest
 
-from travwave.navigation import *
-from travwave.solver import *
-from travwave.equations import *
+import numpy as np
+
+from travwave.navigation import Navigator
+from travwave.solver import Solver
+from travwave.equations import kdv
 from travwave.discretization import Discretization
-from travwave.boundary import *
+from travwave.boundary import Minimum, Mean, Const
 
 import numpy.testing as npt
 
