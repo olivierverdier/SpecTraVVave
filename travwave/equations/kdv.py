@@ -11,7 +11,7 @@ class KDV(Equation):
 
     def compute_kernel(self, k):
         return 1.0-1.0/6*k**2
-            
+
     def flux(self, u):
         return 0.75*u*u
 
@@ -21,9 +21,9 @@ class KDV(Equation):
 class KDV3 (KDV):
     def degree(self):
         return 3
-          
+
     def flux(self, u):
-        return 0.5*u**3  
+        return 0.5*u**3
 
     def flux_prime(self, u):
         return 1.5*u**2
@@ -31,9 +31,9 @@ class KDV3 (KDV):
 class KDV5 (KDV):
     def degree(self):
         return 5
-          
+
     def flux(self, u):
-        return 0.5*u**5  
+        return 0.5*u**5
 
     def flux_prime(self, u):
         return 1.5*u**4

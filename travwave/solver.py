@@ -33,14 +33,14 @@ class Solver(object):
 
     def solve(self, guess_wave, parameter_anchor, direction):
         """
-        Runs a Newton solver on a system of nonlinear equations once. Takes the residual(vector) as the system to solve. 
+        Runs a Newton solver on a system of nonlinear equations once. Takes the residual(vector) as the system to solve.
         """
         size = len(guess_wave)
         self.discretization.size = size
 
         def residual(vector):
             """
-            Contructs a system of nonlinear equations. First part, main_residual, is from given wave equation; 
+            Contructs a system of nonlinear equations. First part, main_residual, is from given wave equation;
             second part, boundary_residual, comes from the chosen boundary conditions.
             """
             wave, variables, extent = self.destruct(vector)
@@ -49,11 +49,11 @@ class Solver(object):
             amplitude_residual = np.array([parameter[1] - wave[0] + wave[-1]])
             main_residual = self.discretization.residual(wave, parameter, variables)
             return np.hstack([main_residual, boundary_residual, amplitude_residual])
-        
+
         guess = self.construct(guess_wave, np.zeros(self.boundary.variables_num()), 0)
         nsolver = newton.MultipleSolver(residual)
         computed = nsolver.run(guess)
         wave, variables, extent = self.destruct(computed)
         new_parameter = compute_parameter(parameter_anchor, direction, extent)
-        
+
         return wave, variables, new_parameter

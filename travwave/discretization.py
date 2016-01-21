@@ -16,7 +16,7 @@ def _make_linear_operator(linop, weights, fik):
         for i in range(size):
             for j in range(size):
                 linop[i,j] += wk * fk[i] * fk[j]
-    
+
 _fast_make_linear_operator = numba.jit('void(f8[:,:], f8[:], f8[:,:])', nopython=True)(_make_linear_operator)
 
 def get_nodes(size):
@@ -42,7 +42,7 @@ class Discretization(object):
     @property
     def size(self):
         return self._size
-    
+
     @size.setter
     def size(self, size):
         self._size = size
@@ -50,8 +50,8 @@ class Discretization(object):
         if self.linear_operator is None: # not in cache for this size, so we recompute it
             self.linear_operator = self.compute_linear_operator()
             self._cached_operator[size] = self.linear_operator # and store it in the cache
-         
-    def compute_shifted_operator(self, size, parameters):                                             
+
+    def compute_shifted_operator(self, size, parameters):
         """
         Only used for testing purposes
         """
@@ -65,11 +65,11 @@ class Discretization(object):
         linop = np.zeros([size, size])
         _fast_make_linear_operator(linop, weights, fik)
         return linop
-        
+
     def compute_linear_operator(self):
         return self.general_linear_operator(weights=self.get_weights(), nodes=self.get_nodes())
 
-    def residual(self, u, parameters, integrconst): 
+    def residual(self, u, parameters, integrconst):
         return np.dot(self.linear_operator, u) - parameters[0]*u + self.equation.flux(u) - integrconst
 
     def frequencies(self):
@@ -96,8 +96,5 @@ class Discretization(object):
     def get_weights(self):
         image = self.image()
         weights = image*2/(len(image))
-        weights[0] /= 2  
+        weights[0] /= 2
         return weights
-        
-
-        

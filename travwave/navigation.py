@@ -1,7 +1,7 @@
 from __future__ import division
 
 from .discretization import resample
-    
+
 def ortho_direction(p1, p2, step):
     """
     Returns pstar such that
@@ -18,7 +18,7 @@ class Navigator(object):
     """
     Runs the iterator and stores the result.
     """
-    
+
     def __init__(self, solve, size=32, doublings=1, correction_rate=10):
         """
         solve: solve function
@@ -32,7 +32,7 @@ class Navigator(object):
         self.correction_rate = correction_rate
         self.velocity_ = 0
         self.amplitude_ = 1
-        
+
     def __getitem__(self, index):
         return self._stored_values[index]
 
