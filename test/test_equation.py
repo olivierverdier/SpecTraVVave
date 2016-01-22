@@ -65,18 +65,3 @@ class DummyDiscretization(Discretization):
     def compute_linear_operator(self):
         self._count[self.size] = self._count.get(self.size, 0) + 1
         return super(DummyDiscretization, self).compute_linear_operator()
-        
-class TestCaching(unittest.TestCase):
-    def test_caching(self):
-        """
-        Caching works.
-        """
-        start_size = 8
-        d = DummyDiscretization(kdv.KDV(1), start_size)
-        self.assertEqual(d._count[8], 1, msg="Operator is computed in __init__")
-        self.assertNotIn(16, d._count, msg="Other operators are not computed yet")
-        d.size = 16
-        self.assertEqual(d._count[16], 1, msg="Operator of size 16 is computed")
-        d.size = 8
-        self.assertEqual(d._count[8], 1, "Operator of size 8 is not recomputed")
-

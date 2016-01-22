@@ -37,23 +37,11 @@ class Discretization(object):
         self.equation = equation
         self.size = size
 
-    @property
-    def size(self):
-        return self._size
-
-    @size.setter
-    def size(self, size):
-        self._size = size
-        self.linear_operator = self._cached_operator.get(size)
-        if self.linear_operator is None: # not in cache for this size, so we recompute it
-            self.linear_operator = self.compute_linear_operator()
-            self._cached_operator[size] = self.linear_operator # and store it in the cache
-
     def compute_shifted_operator(self, size, parameters):
         """
         Only used for testing purposes
         """
-        return (-1)*parameters[0]*np.eye(size) + self.linear_operator
+        return (-1)*parameters[0]*np.eye(size) + self.compute_linear_operator()
 
     def general_linear_operator(self, weights, nodes):
         f = np.cos
@@ -68,7 +56,8 @@ class Discretization(object):
         return self.general_linear_operator(weights=self.get_weights(), nodes=self.get_nodes())
 
     def residual(self, u, parameters, integrconst):
-        return np.dot(self.linear_operator, u) - parameters[0]*u + self.equation.flux(u) - integrconst
+        residual = self.apply_operator(u) - parameters[0]*u + self.equation.flux(u) - integrconst
+        return  residual
 
     def frequencies(self):
         return np.pi/self.equation.length*np.arange(self.size, dtype=float)
