@@ -3,6 +3,8 @@ from __future__ import division
 import numpy as np
 import numba
 
+import scipy.fftpack
+
 def _make_linear_operator(linop, weights, fik):
     """
     fik: array(n,k)
@@ -98,3 +100,9 @@ class Discretization(object):
         weights = image*2/(len(image))
         weights[0] /= 2
         return weights
+
+    def apply_operator(self, u):
+        u_ = scipy.fftpack.dct(u, norm='ortho')
+        Lv = self.image() * u_
+        result = scipy.fftpack.idct(Lv, norm='ortho')
+        return result
