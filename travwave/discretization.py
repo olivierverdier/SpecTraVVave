@@ -25,10 +25,6 @@ def get_nodes(size):
     return np.linspace(0, 1, size, endpoint=False) + 1/2/size
 
 def resample(wave, new_size):
-    wave_bc = np.zeros(len(wave)+2)
-    wave_bc[1:-1] = wave
-    wave_bc[0] = wave_bc[1]
-    wave_bc[-1] = wave_bc[-2]
     size = len(wave)
     new_nodes = get_nodes(new_size)
     resampled = np.interp(new_nodes, get_nodes(size), wave)
