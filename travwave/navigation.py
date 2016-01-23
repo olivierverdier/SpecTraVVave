@@ -19,17 +19,13 @@ class Navigator(object):
     Runs the iterator and stores the result.
     """
 
-    def __init__(self, solve, size=32, doublings=1, correction_rate=10):
+    def __init__(self, solve, size=32):
         """
         solve: solve function
-        size: smallest size for the cheap steps
-        doublings: the number of size doublings for the corrections
-        correction_rate: how many steps between two corrections of highest size
+        size: size for the navigation
         """
         self.solve = solve
         self.size = size
-        self.doublings = doublings
-        self.correction_rate = correction_rate
 
     # the indices for velocity and amplitude
     velocity_, amplitude_ = (0, 1)
@@ -59,21 +55,14 @@ class Navigator(object):
         Iterates the solver N times, navigating over the bifurcation branch and storing found solutions.
         """
         for i in range(N):
-            # steps with low resolution
-            for j in range(self.correction_rate):
-                self.step()
-            # correction steps
-            for k in range(self.doublings):
-                self.correction(resampling=self.size*2**(k+1))
-            # back to low resolution:
-            self.correction(resampling=self.size)
+            self.step()
 
-    def prepare_step(self,step):
+    def prepare_step(self, step, index=-1):
         """
         Return the necessary variables to run the solver.
         """
-        p2 = self._stored_values[-1]['current']
-        p1 = self._stored_values[-1]['previous']
+        p2 = self._stored_values[index]['current']
+        p1 = self._stored_values[index]['previous']
         pstar, direction = self.compute_direction(p1, p2, step)
         return pstar, direction, p1, p2
 
@@ -81,15 +70,16 @@ class Navigator(object):
         new, variables, p3 = self.solve(current, pstar, direction)
         return new, variables, p3
 
-    def correction(self, resampling):
-        current = self._stored_values[-1]['solution']
-        current = resample(current, resampling)
-        pstar, direction, p1, p2 = self.prepare_step(0.)
-        new, variables, p3 = self.run_solver(current, pstar, direction)
-        self._stored_values.append({'solution': new, 'integration constant': variables, 'current': p3, 'previous': p1})
+    def refine(self, resampling, index=-1):
+        sol = self._stored_values[index]['solution']
+        sol = resample(sol, resampling)
+        pstar, direction, p1, p2 = self.prepare_step(0., index)
+        new, variables, p3 = self.run_solver(sol, pstar, direction)
+        return new, variables, p3
 
     def step(self):
         pstar, direction, _, p2 = self.prepare_step(1.)
         current = self._stored_values[-1]['solution']
         new, variables, p3 = self.run_solver(current, pstar, direction)
         self._stored_values.append({'solution': new, 'integration constant': variables, 'current': p3, 'previous': p2})
+

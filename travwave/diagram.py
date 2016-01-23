@@ -4,16 +4,10 @@ from travwave import navigation, solver, discretization
 
 class BifurcationDiagram(object):
 
-    def __init__(self, equation, boundary_condition, size = 32, doublings = 1, correction_rate = 10):
-        self.equation = equation
-        self.boundary = boundary_condition
-        self.doublings = doublings
-        self.size = size
-        self.correction_rate = correction_rate
-
-        self.discretization = discretization.Discretization(self.equation, size = 256)
-        solve = solver.Solver(self.discretization, boundary = self.boundary)
-        nav = navigation.Navigator(solve.solve, size = self.size, doublings = self.doublings, correction_rate = self.correction_rate)
+    def __init__(self, equation, boundary_condition, size = 32):
+        self.discretization = discretization.Discretization(equation, size = 256)
+        solve = solver.Solver(self.discretization, boundary = boundary_condition)
+        nav = navigation.Navigator(solve.solve, size = size)
         initial_guess = self.discretization.compute_initial_guess(.01)
         initial_velocity = self.discretization.bifurcation_velocity()
         step = 0.005 # should not be hard coded!

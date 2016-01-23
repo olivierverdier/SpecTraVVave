@@ -19,6 +19,9 @@ class TestGeneral(unittest.TestCase):
         bd = BifurcationDiagram(equation, boundary_cond)
         bd.navigation.run(10)
         print('Amplitude = ', bd.navigation[-1]['current'][bd.navigation.amplitude_])
+        new_size = 500
+        n,v,p = bd.navigation.refine(new_size)
+        self.assertEqual(len(n), new_size)
 
 if __name__ == '__main__':
     unittest.main()
