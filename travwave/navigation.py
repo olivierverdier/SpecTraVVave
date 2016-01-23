@@ -30,8 +30,9 @@ class Navigator(object):
         self.size = size
         self.doublings = doublings
         self.correction_rate = correction_rate
-        self.velocity_ = 0
-        self.amplitude_ = 1
+
+    # the indices for velocity and amplitude
+    velocity_, amplitude_ = (0, 1)
 
     def __getitem__(self, index):
         return self._stored_values[index]
