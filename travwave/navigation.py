@@ -61,8 +61,8 @@ class Navigator(object):
         """
         Return the necessary variables to run the solver.
         """
-        p2 = self._stored_values[index]['current']
-        p1 = self._stored_values[index]['previous']
+        p2 = self[index]['current']
+        p1 = self[index]['previous']
         pstar, direction = self.compute_direction(p1, p2, step)
         return pstar, direction, p1, p2
 
@@ -71,7 +71,7 @@ class Navigator(object):
         return new, variables, p3
 
     def refine(self, resampling, index=-1):
-        sol = self._stored_values[index]['solution']
+        sol = self[index]['solution']
         sol = resample(sol, resampling)
         pstar, direction, p1, p2 = self.prepare_step(0., index)
         new, variables, p3 = self.run_solver(sol, pstar, direction)
@@ -79,7 +79,7 @@ class Navigator(object):
 
     def step(self):
         pstar, direction, _, p2 = self.prepare_step(1.)
-        current = self._stored_values[-1]['solution']
+        current = self[-1]['solution']
         new, variables, p3 = self.run_solver(current, pstar, direction)
         self._stored_values.append({'solution': new, 'integration constant': variables, 'current': p3, 'previous': p2})
 
