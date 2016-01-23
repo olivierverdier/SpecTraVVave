@@ -16,7 +16,7 @@ class BifurcationDiagram(object):
         nav = navigation.Navigator(solve.solve, size = self.size, doublings = self.doublings, correction_rate = self.correction_rate)
         initial_guess = self.discretization.compute_initial_guess(.01)
         initial_velocity = self.discretization.bifurcation_velocity()
-        step = 0.005
+        step = 0.005 # should not be hard coded!
         p1 = (initial_velocity, 0)
         p0 = (initial_velocity, -step)
 
