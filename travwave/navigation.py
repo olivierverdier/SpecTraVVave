@@ -57,28 +57,34 @@ class Navigator(object):
         for i in range(N):
             self.step()
 
-    def prepare_step(self, step, index=-1):
+    def prepare_step(self, step, p2, p1):
         """
         Return the necessary variables to run the solver.
         """
+        pstar, direction = self.compute_direction(p1, p2, step)
+        return pstar, direction
+
+    def two_parameter_points(self, index):
         p2 = self[index]['current']
         p1 = self[index]['previous']
-        pstar, direction = self.compute_direction(p1, p2, step)
-        return pstar, direction, p1, p2
+        return p2, p1
 
     def run_solver(self, current, pstar, direction):
         new, variables, p3 = self.solve(current, pstar, direction)
         return new, variables, p3
 
-    def refine(self, resampling, index=-1):
+    def refine(self, resampling, index=-1, ps=None):
         sol = self[index]['solution']
         sol = resample(sol, resampling)
-        pstar, direction, p1, p2 = self.prepare_step(0., index)
+        if ps is None:
+            ps = self.two_parameter_points(index)
+        pstar, direction = self.prepare_step(0., ps[1], ps[0])
         new, variables, p3 = self.run_solver(sol, pstar, direction)
         return new, variables, p3
 
     def step(self):
-        pstar, direction, _, p2 = self.prepare_step(1.)
+        p2, p1 = self.two_parameter_points(index=-1)
+        pstar, direction = self.prepare_step(1., p2, p1)
         current = self[-1]['solution']
         new, variables, p3 = self.run_solver(current, pstar, direction)
         self._stored_values.append({'solution': new, 'integration constant': variables, 'current': p3, 'previous': p2})
