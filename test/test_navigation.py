@@ -29,20 +29,22 @@ class TestDummyNavigation(unittest.TestCase):
         self.assertIsInstance(computed_direction, tuple, msg="direction is a tuple")
         self.assertEqual(computed_direction[0]*dp[0] + computed_direction[1]*dp[1], 0, msg="direction is orthogonal to the line joining the two previous parameter points")
 
-    def test_nav(self):
-        N = 20
+    def setUp(self):
         low_size = 24
-        nav = Navigator(dummy_solver, size=low_size)
+        self.nav = Navigator(dummy_solver, size=low_size)
         init_size = 50
         x0 = np.ones(init_size)
-        nav.initialize(x0, (1.,0), (0.,0))
+        self.nav.initialize(x0, (1.,0), (0.,0))
+
+    def test_nav(self):
+        N = 20
+        nav = self.nav
         nav.run(N)
         points = [a['solution'] for a in nav]
         self.assertEqual(len(nav), len(points), msg="Possible to compute the length of a Navigation object")
         self.assertEqual(len(nav), N+1) # Total size is number of steps plus one
         self.assertEqual(len(nav[0]['solution']), nav.size) # Right size of the initialized navigation point
         ## npt.assert_allclose(np.array(points), np.arange(N+1) + x0)
-      
         for i in range(N):
             p2 = nav[i]['current']
             p1_ = nav[i+1]['previous']
