@@ -73,14 +73,22 @@ class Navigator(object):
         new, variables, p3 = self.solve(current, pstar, direction)
         return new, variables, p3
 
-    def refine(self, resampling, index=-1, ps=None):
-        sol = self[index]['solution']
-        sol = resample(sol, resampling)
-        if ps is None:
-            ps = self.two_parameter_points(index)
-        pstar, direction = self.prepare_step(0., ps[1], ps[0])
-        new, variables, p3 = self.run_solver(sol, pstar, direction)
-        return new, variables, p3
+    def refine(self, resampling, sol, p, direction):
+        """
+        Refine from solution `sol` at parameter `p` in direction `direction` in the parameter space.
+        """
+        sol_ = resample(sol, resampling)
+        new, variables, p_ = self.run_solver(sol_, p, direction)
+        return new, variables, p_
+
+    def refine_at(self, resampling, index=-1):
+        """
+        Refine using a direction orthogonal to the last two parameter points.
+        """
+        p2, p1 = self.two_parameter_points(index)
+        p, dir = self.prepare_step(0, p2, p1)
+        current = self[index]['solution']
+        return self.refine(resampling, current, p, dir)
 
     def step(self):
         p2, p1 = self.two_parameter_points(index=-1)

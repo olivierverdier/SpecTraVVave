@@ -20,7 +20,7 @@ class TestGeneral(unittest.TestCase):
         bd.navigation.run(10)
         print('Amplitude = ', bd.navigation[-1]['current'][bd.navigation.amplitude_])
         new_size = 500
-        n,v,p = bd.navigation.refine(new_size)
+        n,v,p = bd.navigation.refine_at(new_size)
         self.assertEqual(len(n), new_size)
 
 if __name__ == '__main__':

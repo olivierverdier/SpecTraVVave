@@ -36,6 +36,10 @@ class TestDummyNavigation(unittest.TestCase):
         x0 = np.ones(init_size)
         self.nav.initialize(x0, (1.,0), (0.,0))
 
+    def test_refine(self):
+        sol, v, p_ = self.nav.refine(resampling=20, sol=np.ones(5), p=(1,2), direction=(0,1))
+        self.assertEqual(len(sol), 20)
+
     def test_nav(self):
         N = 20
         nav = self.nav
