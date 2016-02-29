@@ -17,6 +17,7 @@ class TestGeneral(unittest.TestCase):
         equation = kdv.KDV(length)
         boundary_cond = Const()
         bd = BifurcationDiagram(equation, boundary_cond)
+        bd.initialize()
         bd.navigation.run(10)
         print('Amplitude = ', bd.navigation[-1]['current'][bd.navigation.amplitude_])
         new_size = 500
