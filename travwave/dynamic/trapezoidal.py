@@ -67,7 +67,7 @@ class Trapezoidal_rule(object):
 
             maxit = 10000
 
-            for it in xrange(maxit):
+            for it in range(maxit):
                 w_new = fixedpoint(w)
                 diff = w_new - w
                 err = abs(np.max(diff))

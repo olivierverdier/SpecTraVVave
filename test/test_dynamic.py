@@ -12,7 +12,6 @@ from travwave.diagram import *
 
 
 class TestTrapezoidal(unittest.TestCase):
-    @unittest.skip("test is broken...")
     def test(self):
         length = 3*np.pi
         equation = kdv.KDV(length)
@@ -42,11 +41,11 @@ class TestDeFrutos(unittest.TestCase):
 
         u = bd.navigation[-1]['solution']
         velocity = bd.navigation[-1]['current'][bd.navigation.velocity_]
-        dyn = DeFrutos_SanzSerna(equation, u, velocity)
+        dyn = Trapezoidal_rule(equation, u, velocity)
         uu = dyn.mirror()
         t_wave = dyn.evolution(solution = uu, nb_steps=int(1e2), periods = 1)
 
-        xx = np.arange(-length, length, length/size)
         error = t_wave - uu
         print(max(abs(error)))
         npt.assert_allclose(t_wave, uu, atol=1e-3, err_msg="Wave is equal to itself after travelling one period")
+
