@@ -2,6 +2,8 @@ from __future__ import division
 
 from travwave import navigation, solver, discretization
 
+import numpy as np
+
 class BifurcationDiagram(object):
 
     def __init__(self, equation, boundary_condition, size=32, init_size=256):
@@ -16,6 +18,11 @@ class BifurcationDiagram(object):
         p1 = (initial_velocity, 0)
         p0 = (initial_velocity, -step)
         self.navigation.initialize(initial_guess, p1, p0)
+
+    def plot_data(self):
+        parameters = [result['current'] for result in self.navigation]
+        aparameters = np.array(parameters)
+        return aparameters.T
 
     def plot_diagram(self):
         from matplotlib.pyplot import plot, xlabel, ylabel
