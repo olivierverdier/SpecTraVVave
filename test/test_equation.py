@@ -7,12 +7,12 @@ import numpy.testing as npt
 import numpy as np
 
 from travwave.equations import *
-from travwave.discretization import Discretization
+from travwave.discretization import DiscretizationOperator
 
 class HarnessEquation(object):
     def setUp(self):
         self.equation = self.get_equation()
-        self.discretization = Discretization(self.equation, 8)
+        self.discretization = DiscretizationOperator(self.equation, 8)
 
     def test_flux(self):
         """
@@ -54,14 +54,3 @@ class TestWhitham(HarnessEquation, unittest.TestCase):
     def get_equation(self):
         return whitham.Whitham(1)
 
-class DummyDiscretization(Discretization):
-    """
-    A mock Discretization object.
-    """
-    def __init__(self, *args, **kwargs):
-        self._count = {}
-        super(DummyDiscretization, self).__init__(*args, **kwargs)
-
-    def compute_linear_operator(self):
-        self._count[self.size] = self._count.get(self.size, 0) + 1
-        return super(DummyDiscretization, self).compute_linear_operator()
