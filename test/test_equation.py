@@ -24,6 +24,14 @@ class HarnessEquation(object):
         computed = self.equation.flux_prime(u)
         npt.assert_allclose(computed, expected, rtol=1e-4)
 
+    def test_degree(self):
+        """
+        The degree is correct.
+        """
+        A = 1e10
+        degree = np.log(self.equation.flux(A)/self.equation.flux(1))/np.log(A)
+        npt.assert_allclose(self.equation.degree(), degree)
+
     def test_linop(self):
         """
         The numba implementation of the linear operator gives the same results as the previous one.
@@ -73,6 +81,10 @@ class TestWhitham5(HarnessEquation, unittest.TestCase):
 class TestWhithamsqrt(HarnessEquation, unittest.TestCase):
     def get_equation(self):
         return whitham.Whithamsqrt(1)
+
+    def test_degree(self):
+        """The flux is not a monomial"""
+        pass
 
 class TestKawahara(HarnessEquation, unittest.TestCase):
     def get_equation(self):
