@@ -10,3 +10,4 @@ exclude_lines =
     if __name__ == .__main__.:
     def parse_args
     _make_linear_operator
+    def plot_
