@@ -3,14 +3,14 @@
 from __future__ import division
 
 import numpy as np
-from scipy.fftpack import fft, ifft, dct 
+from scipy.fftpack import fft, ifft, dct
 
 from .trapezoidal import Trapezoidal_rule
 
 class DeFrutos_SanzSerna(Trapezoidal_rule):
     """
     4th order dynamic integrator based on the method of de Frutos and Sanz-Serna (1992). The class changes the evolution() method of the
-    Trapezoidal_rule class and adds its own methods. 
+    Trapezoidal_rule class and adds its own methods.
     """
     def multipliers(self, timestep = 0.001):
         """
@@ -21,30 +21,30 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         p = self.equation.degree()
         dt = timestep
         scale = self.equation.length/np.pi
-        
+
         kernel, shifted_frequencies = self.shift_frequencies(NN)
-        
+
         m = -0.5*dt*kernel
-        
+
         m1 = 1./( 1 - beta*m );
-        m2 = ( self.equation.flux_prime(1) * beta * dt * 1j * shifted_frequencies/(2*p) )*m1; 
+        m2 = ( self.equation.flux_prime(1) * beta * dt * 1j * shifted_frequencies/(2*p) )*m1;
         mm1 = 1./( 1 - (1-2*beta)*m );
         mm2 = ( self.equation.flux_prime(1) * (1-2*beta) * dt * 1j * shifted_frequencies/(2*p) )*mm1;
-        
+
         return m1, m2, mm1, mm2
 
     def iterate(self, fftvector, Z, coeffs1, coeffs2, p, nb_iterations):
         LP = coeffs1*fftvector
         for j in range(nb_iterations):
-            Z = LP - coeffs2*( fft( np.power(ifft(Z).real, p+1 ) )  )        
+            Z = LP - coeffs2*( fft( np.power(ifft(Z).real, p+1 ) )  )
         return 2*Z-fftvector
-    
+
     def integrator(self, wave_profile, m1, m2, mm1, mm2):
         """
         The main algorithm for integration based on De Frutos and Sanz-Serna findings.
         """
         beta = ( 2 + 2**(1/3) + 2**(-1/3) )/3
-        
+
         p = self.equation.degree()-1
         u = wave_profile
 
@@ -55,31 +55,31 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         Y = self.iterate(Y, Y, mm1, mm2, p, 5)
         Y = self.iterate(Y, Y, m1, m2, p, 5)
         unew = ifft( Y ).real
-        
-        #  ---------- STEP TWO ------------ #                                     
-                                                                  
-        Y = fft(unew)                                                                                                        
+
+        #  ---------- STEP TWO ------------ #
+
+        Y = fft(unew)
         Z = .5*( (2 + beta)*Y - beta*fft(u) )
-       
-        Y = self.iterate(Y, Z, m1, m2, p, 5)                      
+
+        Y = self.iterate(Y, Z, m1, m2, p, 5)
         Z = .5*( Y + (2-beta)*fft(unew) - (1-beta)*fft(u) )
         Y = self.iterate(Y, Z, mm1, mm2, p, 5)
-        
+
         Z = .5*( Y + 2*fft(unew) - fft(u) )
         Y = self.iterate(Y, Z, m1, m2, p, 5)
-    
+
         uold = u; u = unew
         unew = ifft( Y ).real
-    
+
         #  ---------- STEP THREE ------------ #
-    
+
         q1 = .5*beta*(1+beta); q2 = beta*(2+beta); q3 = .5*(2+beta)*(1+beta);
         qq1 = .5*(2-beta)*(1-beta); qq2 = (3-beta)*(1-beta); qq3 = .5*(3-beta)*(2-beta);
-        
+
         Q1 = fft(q1*uold - q2*u + q3*unew)
         Q2 = fft(qq1*uold - qq2*u + qq3*unew)
         Q3 = fft(uold - 3*u + 3*unew)
-            
+
         Y = fft(unew)
         Z = .5*( Y + Q1 )
         Y = self.iterate(Y, Z, m1, m2, p, 2)
@@ -87,18 +87,18 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         Y = self.iterate(Y, Z, mm1, mm2, p, 2)
         Z = .5*( Y + Q3 )
         Y = self.iterate(Y, Z, m1, m2, p, 2)
-        
+
         uold = u; u = unew
         unew = ifft( Y ).real
-        
+
         u = unew
         return u
-    
+
     def evolution(self, solution, nb_steps=1000, periods = 1):
         """
-        
+
         """
-        u = solution                  
+        u = solution
 
         T = 2*self.equation.length/self.velocity
         dt = periods*T/nb_steps
