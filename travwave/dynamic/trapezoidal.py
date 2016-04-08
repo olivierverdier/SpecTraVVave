@@ -14,6 +14,20 @@ class Trapezoidal_rule(object):
         self.u = wave
         self.velocity = velocity
 
+    def shift_frequencies(self, NN):
+        """
+        Compute the Fourier multiplier of the operator complying with the fft conventions
+        """
+        scale = self.equation.length/np.pi
+        # todo: use fft shift and freq instead
+        centered_frequencies = 1/scale * np.concatenate((np.arange(1, NN/2+1, 1), np.arange(1-NN/2, 0, 1)))
+        kerne = 1j * centered_frequencies * self.equation.compute_kernel(centered_frequencies)
+        kernel = np.concatenate(([0], kerne))
+        kernel[NN/2] = 0
+
+        shifted_frequencies = 1/scale * np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
+        return kernel, shifted_frequencies
+
     def mirror(self):
         """
         Mirrors the half-period profile to a full period profile.
@@ -30,15 +44,8 @@ class Trapezoidal_rule(object):
         """
         u = solution
         NN = len(u)
-        scale = self.equation.length/np.pi
 
-        # todo: use fft shift and freq instead
-        centered_frequencies = 1/scale * np.concatenate((np.arange(1, NN/2+1, 1), np.arange(1-NN/2, 0, 1)))
-        kerne = 1j * centered_frequencies * self.equation.compute_kernel(centered_frequencies)
-        kernel = np.concatenate(([0], kerne))
-        kernel[NN/2] = 0
-
-        shifted_frequencies = 1/scale * np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
+        kernel, shifted_frequencies = self.shift_frequencies(NN)
 
         T = 2 * self.equation.length / self.velocity
         dt = periods * T / nb_steps
