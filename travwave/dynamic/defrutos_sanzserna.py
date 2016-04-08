@@ -38,7 +38,7 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
     def iterate(self, fftvector, Z, coeffs1, coeffs2, p, tol=1e-14, max_nb_iterations=10):
         LP = coeffs1*fftvector
         for j in range(max_nb_iterations):
-            Z_new = LP - coeffs2*( fft( np.power(ifft(Z).real, p+1 ) )  )
+            Z_new = LP - coeffs2 * fft(np.power(ifft(Z).real, p+1))
             error = np.max(np.abs(Z-Z_new))
             Z = Z_new
             if error < tol:
