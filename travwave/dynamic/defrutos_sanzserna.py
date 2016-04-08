@@ -2,6 +2,8 @@
 # coding: utf-8
 from __future__ import division
 
+import warnings
+
 import numpy as np
 from scipy.fftpack import fft, ifft, dct
 
@@ -33,10 +35,16 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
 
         return m1, m2, mm1, mm2
 
-    def iterate(self, fftvector, Z, coeffs1, coeffs2, p, nb_iterations):
+    def iterate(self, fftvector, Z, coeffs1, coeffs2, p, tol=1e-14, max_nb_iterations=10):
         LP = coeffs1*fftvector
-        for j in range(nb_iterations):
-            Z = LP - coeffs2*( fft( np.power(ifft(Z).real, p+1 ) )  )
+        for j in range(max_nb_iterations):
+            Z_new = LP - coeffs2*( fft( np.power(ifft(Z).real, p+1 ) )  )
+            error = np.max(np.abs(Z-Z_new))
+            Z = Z_new
+            if error < tol:
+                break
+        else:
+            warnings.warn("no convergence: error log = {:.2f}".format(np.log(error)), RuntimeWarning)
         return 2*Z-fftvector
 
     def integrator(self, wave_profile, m1, m2, mm1, mm2):
@@ -51,9 +59,9 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         #  ---------- STEP ONE ------------ #
 
         Y = fft(u)
-        Y = self.iterate(Y, Y, m1, m2, p, 5)
-        Y = self.iterate(Y, Y, mm1, mm2, p, 5)
-        Y = self.iterate(Y, Y, m1, m2, p, 5)
+        Y = self.iterate(Y, Y, m1, m2, p)
+        Y = self.iterate(Y, Y, mm1, mm2, p)
+        Y = self.iterate(Y, Y, m1, m2, p)
         unew = ifft( Y ).real
 
         #  ---------- STEP TWO ------------ #
@@ -61,12 +69,12 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
         Y = fft(unew)
         Z = .5*( (2 + beta)*Y - beta*fft(u) )
 
-        Y = self.iterate(Y, Z, m1, m2, p, 5)
+        Y = self.iterate(Y, Z, m1, m2, p)
         Z = .5*( Y + (2-beta)*fft(unew) - (1-beta)*fft(u) )
-        Y = self.iterate(Y, Z, mm1, mm2, p, 5)
+        Y = self.iterate(Y, Z, mm1, mm2, p)
 
         Z = .5*( Y + 2*fft(unew) - fft(u) )
-        Y = self.iterate(Y, Z, m1, m2, p, 5)
+        Y = self.iterate(Y, Z, m1, m2, p)
 
         uold = u; u = unew
         unew = ifft( Y ).real
@@ -82,11 +90,11 @@ class DeFrutos_SanzSerna(Trapezoidal_rule):
 
         Y = fft(unew)
         Z = .5*( Y + Q1 )
-        Y = self.iterate(Y, Z, m1, m2, p, 2)
+        Y = self.iterate(Y, Z, m1, m2, p)
         Z = .5*( Y + Q2 )
-        Y = self.iterate(Y, Z, mm1, mm2, p, 2)
+        Y = self.iterate(Y, Z, mm1, mm2, p)
         Z = .5*( Y + Q3 )
-        Y = self.iterate(Y, Z, m1, m2, p, 2)
+        Y = self.iterate(Y, Z, m1, m2, p)
 
         uold = u; u = unew
         unew = ifft( Y ).real
