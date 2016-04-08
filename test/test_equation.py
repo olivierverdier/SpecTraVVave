@@ -6,7 +6,7 @@ import unittest
 import numpy.testing as npt
 import numpy as np
 
-from travwave.equations import *
+from travwave.equations import kdv, whitham, benjamin, kawahara
 from travwave.discretization import DiscretizationOperator
 
 class HarnessEquation(object):
@@ -50,7 +50,38 @@ class TestKDV(HarnessEquation, unittest.TestCase):
     def get_equation(self):
         return kdv.KDV(1)
 
+class TestKDV3(HarnessEquation, unittest.TestCase):
+    def get_equation(self):
+        return kdv.KDV3(1)
+
+class TestKDV5(HarnessEquation, unittest.TestCase):
+    def get_equation(self):
+        return kdv.KDV5(1)
+
 class TestWhitham(HarnessEquation, unittest.TestCase):
     def get_equation(self):
         return whitham.Whitham(1)
 
+class TestWhitham3(HarnessEquation, unittest.TestCase):
+    def get_equation(self):
+        return whitham.Whitham3(1)
+
+class TestWhitham5(HarnessEquation, unittest.TestCase):
+    def get_equation(self):
+        return whitham.Whitham5(1)
+
+class TestWhithamsqrt(HarnessEquation, unittest.TestCase):
+    def get_equation(self):
+        return whitham.Whithamsqrt(1)
+
+class TestKawahara(HarnessEquation, unittest.TestCase):
+    def get_equation(self):
+        return kawahara.Kawahara(1)
+
+class TestBenjaminOno(HarnessEquation, unittest.TestCase):
+    def get_equation(self):
+        return benjamin.Benjamin_Ono(1)
+
+class TestMBenjaminOno(HarnessEquation, unittest.TestCase):
+    def get_equation(self):
+        return benjamin.modified_Benjamin_Ono(1)

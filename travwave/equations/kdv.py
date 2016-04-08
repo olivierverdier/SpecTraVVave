@@ -36,4 +36,4 @@ class KDV5 (KDV):
         return 0.5*u**5
 
     def flux_prime(self, u):
-        return 1.5*u**4
+        return 2.5*u**4
