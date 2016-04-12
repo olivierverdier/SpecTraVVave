@@ -14,17 +14,21 @@ from travwave.navigation import Navigator
 import numpy.testing as npt
 
 class TestRefine(unittest.TestCase):
-    def test_run(self):
+    def setUp(self):
         length = 5
         equation = teq.kdv.KDV(length)
         boundary_cond = tbc.Const()
-        bd = BifurcationDiagram(equation, boundary_cond)
+        self.bd = bd = BifurcationDiagram(equation, boundary_cond)
         bd.initialize()
         bd.navigation.run(10)
-        print('Amplitude = ', bd.navigation[-1]['current'][bd.navigation.amplitude_])
+
+    def test_refine(self):
         new_size = 500
-        n,v,p = bd.navigation.refine_at(new_size)
+        n,v,p = self.bd.navigation.refine_at(new_size)
         self.assertEqual(len(n), new_size)
+
+    def test_plot_diagram(self):
+        self.bd.plot_diagram()
 
 class TestGeneral(unittest.TestCase):
     """
