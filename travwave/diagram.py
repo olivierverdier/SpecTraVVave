@@ -41,7 +41,8 @@ class BifurcationDiagram(object):
         for i in counter:
             solution = self.navigation[index[i]]['solution']
             size = len(solution)
-            nodes = self.equation.length * (np.linspace(0, 1, size, endpoint = False) + 1/2/size)
+            self.discretization.size = size
+            nodes = self.discretization.get_nodes()
             plot(nodes, solution)
         xlabel('x')
         ylabel('Surface Elevation')

@@ -30,6 +30,9 @@ class TestRefine(unittest.TestCase):
     def test_plot_diagram(self):
         self.bd.plot_diagram()
 
+    def test_plot_solution(self):
+        self.bd.plot_solution()
+
 class TestGeneral(unittest.TestCase):
     """
     Only tests that the problem can be manually set up and run without raising any exception.
