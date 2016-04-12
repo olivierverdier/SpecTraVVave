@@ -5,8 +5,8 @@ import numba
 
 import scipy.fftpack
 
-def get_nodes(size):
-    return np.linspace(0, 1, size, endpoint=False) + 1/2/size
+def get_nodes(size, length=1.):
+    return length*(np.linspace(0, 1, size, endpoint=False) + 1/2/size)
 
 def resample(wave, new_size):
     size = len(wave)
@@ -34,11 +34,11 @@ class Discretization(object):
         return self.image()[1] # check this
 
     def get_nodes(self):
-        nodes = self.equation.length*(get_nodes(self.size))
+        nodes = get_nodes(self.size, self.equation.length)
         return nodes
 
     def compute_initial_guess(self, amplitude):
-        cosine = np.cos(np.pi/self.equation.length*self.get_nodes())
+        cosine = np.cos(np.pi*get_nodes(self.size))
         init_guess = amplitude*cosine
         return init_guess
 
