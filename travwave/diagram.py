@@ -3,6 +3,7 @@ from __future__ import division
 from travwave import navigation, solver, discretization
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 class BifurcationDiagram(object):
 
@@ -25,22 +26,20 @@ class BifurcationDiagram(object):
         return aparameters.T
 
     def plot_diagram(self):
-        from matplotlib.pyplot import plot, xlabel, ylabel
         nav = self.navigation
         parameters = [result['current'] for result in nav]
         aparameters = np.array(parameters)
-        plot(aparameters[:,0], aparameters[:,1], '.--')
-        xlabel('Wavespeed')
-        ylabel('Waveheight')
+        plt.plot(aparameters[:,0], aparameters[:,1], '.--')
+        plt.xlabel('Wavespeed')
+        plt.ylabel('Waveheight')
 
     def plot_solution(self, index = [-1]):
-        from matplotlib.pyplot import plot, xlabel, ylabel
         counter = np.arange(np.size(index))
         for i in counter:
             solution = self.navigation[index[i]]['solution']
             size = len(solution)
             self.discretization.size = size
             nodes = self.discretization.get_nodes()
-            plot(nodes, solution)
-        xlabel('x')
-        ylabel('Surface Elevation')
+            plt.plot(nodes, solution)
+        plt.xlabel('x')
+        plt.ylabel('Surface Elevation')
