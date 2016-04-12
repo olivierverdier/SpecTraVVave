@@ -31,13 +31,16 @@ class BifurcationDiagram(object):
         plt.xlabel('Wavespeed')
         plt.ylabel('Waveheight')
 
-    def plot_solution(self, index = [-1]):
+    def plot_solution(self, solution):
+        size = len(solution)
+        self.discretization.size = size
+        nodes = self.discretization.get_nodes()
+        plt.plot(nodes, solution)
+        plt.xlabel('x')
+        plt.ylabel('Surface Elevation')
+
+    def plot_solutions(self, index = [-1]):
         counter = np.arange(np.size(index))
         for i in counter:
             solution = self.navigation[index[i]]['solution']
-            size = len(solution)
-            self.discretization.size = size
-            nodes = self.discretization.get_nodes()
-            plt.plot(nodes, solution)
-        plt.xlabel('x')
-        plt.ylabel('Surface Elevation')
+            self.plot_solution(solution)

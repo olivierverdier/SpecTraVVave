@@ -30,8 +30,8 @@ class TestRefine(unittest.TestCase):
     def test_plot_diagram(self):
         self.bd.plot_diagram()
 
-    def test_plot_solution(self):
-        self.bd.plot_solution()
+    def test_plot_solutions(self):
+        self.bd.plot_solutions()
 
 class TestGeneral(unittest.TestCase):
     """
