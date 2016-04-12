@@ -26,7 +26,6 @@ class BifurcationDiagram(object):
 
     def plot_diagram(self):
         from matplotlib.pyplot import plot, xlabel, ylabel
-        import numpy as np
         nav = self.navigation
         parameters = [result['current'] for result in nav]
         aparameters = np.array(parameters)
@@ -36,7 +35,6 @@ class BifurcationDiagram(object):
 
     def plot_solution(self, index = [-1]):
         from matplotlib.pyplot import plot, xlabel, ylabel
-        import numpy as np
         counter = np.arange(np.size(index))
         for i in counter:
             solution = self.navigation[index[i]]['solution']
