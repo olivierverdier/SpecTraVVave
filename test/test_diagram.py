@@ -2,20 +2,22 @@ from __future__ import division
 
 import unittest
 
-from travwave.equations import *
-from travwave.diagram import *
-from travwave.boundary import *
+from travwave.diagram import BifurcationDiagram
+import travwave.equations as teq
+import travwave.boundary as tbc
+
+from travwave.discretization import Discretization
+from travwave.solver import Solver
+from travwave.navigation import Navigator
+
+
 import numpy.testing as npt
 
-class TestGeneral(unittest.TestCase):
-    """
-    Only tests that the problem can be set up and run without raising any exception.
-    No tests are actually performed.
-    """
+class TestRefine(unittest.TestCase):
     def test_run(self):
         length = 5
-        equation = kdv.KDV(length)
-        boundary_cond = Const()
+        equation = teq.kdv.KDV(length)
+        boundary_cond = tbc.Const()
         bd = BifurcationDiagram(equation, boundary_cond)
         bd.initialize()
         bd.navigation.run(10)
@@ -24,6 +26,49 @@ class TestGeneral(unittest.TestCase):
         n,v,p = bd.navigation.refine_at(new_size)
         self.assertEqual(len(n), new_size)
 
-if __name__ == '__main__':
-    unittest.main()
+class TestGeneral(unittest.TestCase):
+    """
+    Only tests that the problem can be manually set up and run without raising any exception.
+    No tests are actually performed.
+    """
+    def get_size(self):
+        return 50
 
+    def get_length(self):
+        return 100
+
+    def get_equation_class(self):
+        return teq.kdv.KDV
+
+    def get_boundary(self):
+        return tbc.Minimum(0)
+
+    def get_nbsteps(self):
+        return 10
+
+    def test_manual_initialization(self):
+        size = self.get_size()
+        length = self.get_length()
+        self.equation = self.get_equation_class()(length)
+        self.boundary = self.get_boundary()
+
+        self.diagram = BifurcationDiagram(self.equation, self.boundary, size, size)
+
+        self.discretization = Discretization(self.equation, size)
+        solver = Solver(self.discretization, self.boundary)
+        nb_steps = self.get_nbsteps()
+        nav = Navigator(solver.solve, size=size)
+        initial_velocity = self.discretization.bifurcation_velocity()
+        p1 = (initial_velocity, 0)
+        epsilon = .1/nb_steps
+        p0 = (initial_velocity, -epsilon)
+        initial_guess = self.discretization.compute_initial_guess(epsilon/10)
+        nav.initialize(initial_guess, p1, p0)
+        nav.run(1)
+        self.nav = nav
+        store = nav[-1]
+        self.B = store['integration constant']
+        self.c = store['current'][nav.velocity_]
+        self.amplitude = store['current'][nav.amplitude_]
+        self.xs = self.discretization.get_nodes()
+        self.computed = store['solution']
