@@ -18,7 +18,7 @@ import travwave.boundary as tbc
 
 Define the half length of the travelling wave:
 ```python
-length = 5
+length = 30
 ```
 
 Which equation are we solving. Look in the `travwave/equations` folder, or implement your own equation. Here we choose the KDV equation.
@@ -34,7 +34,7 @@ boundary_cond = tbc.Minimum()
 Setup the diagram object, initialize and run it:
 ```python
 bd = BifurcationDiagram(equation, boundary_cond)
-# initialize it
+# initialize it with default parameters
 bd.initialize()
 # run for fifty steps
 bd.navigation.run(50)
@@ -45,22 +45,21 @@ Let us see what the amplitude reached is:
 print('Amplitude = ', bd.navigation[-1]['current'][bd.navigation.amplitude_])
 ```
 
+We plot the current computed solution, at coarse resolution:
+```python
+bd.plot_solution(bd.navigation[-1]['solution'])
+```
+![Refined solution](https://github.com/olivierverdier/SpecTraVVave/raw/master/coarse.png)
+
 We refine to get a higher resolution travelling wave:
 ```python
 new_size = 500
 refined, v, parameter = bd.navigation.refine_at(new_size)
 ```
 
-## Some plots
-
-First, the classical import:
+and we plot that refined solution:
 ```python
-import matplotlib.pyplot as plt
-```
-
-We plot the last refined solution
-```python
-plt.plot(bd.discretization.get_nodes(), refined)
+bd.plot_solution(refined)
 ```
 
 ![Refined solution](https://github.com/olivierverdier/SpecTraVVave/raw/master/wave.png)
