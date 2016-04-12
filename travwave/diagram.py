@@ -30,13 +30,7 @@ class BifurcationDiagram(object):
         nav = self.navigation
         parameters = [result['current'] for result in nav]
         aparameters = np.array(parameters)
-        sizes = [len(result['solution']) for result in nav]
         plot(aparameters[:,0], aparameters[:,1], '.--')
-        for i,s in enumerate(sizes):
-            if s > 50:
-                plot(aparameters[i,0], aparameters[i,1], 'o', color='green')
-            if s > 100:
-                plot(aparameters[i,0], aparameters[i,1], 'o', color='red')
         xlabel('Wavespeed')
         ylabel('Waveheight')
 
