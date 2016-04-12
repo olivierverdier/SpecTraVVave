@@ -26,10 +26,8 @@ class BifurcationDiagram(object):
         return aparameters.T
 
     def plot_diagram(self):
-        nav = self.navigation
-        parameters = [result['current'] for result in nav]
-        aparameters = np.array(parameters)
-        plt.plot(aparameters[:,0], aparameters[:,1], '.--')
+        aparameters = self.plot_data()
+        plt.plot(aparameters[0], aparameters[1], '.--')
         plt.xlabel('Wavespeed')
         plt.ylabel('Waveheight')
 
