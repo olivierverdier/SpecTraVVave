@@ -8,7 +8,6 @@ system.
 
 from __future__ import division
 import numpy as np
-from scipy.integrate import trapz
 
 class Const(object):
     """
