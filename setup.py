@@ -10,7 +10,7 @@ setup(
 	license = 'MIT',
 	keywords = ['Math'],
 	
-	packages=['travwave'],
+	packages=['travwave', 'travwave.equations', 'travwave.boundary', 'travwave.dynamic'],
 	classifiers = [
 	'Development Status :: 3 - Alpha',
 	'Environment :: Console',
