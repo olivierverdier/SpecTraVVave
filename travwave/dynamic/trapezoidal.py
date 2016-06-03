@@ -23,7 +23,7 @@ class Trapezoidal_rule(object):
         centered_frequencies = 1/scale * np.concatenate((np.arange(1, NN/2+1, 1), np.arange(1-NN/2, 0, 1)))
         kerne = 1j * centered_frequencies * self.equation.compute_kernel(centered_frequencies)
         kernel = np.concatenate(([0], kerne))
-        kernel[NN/2] = 0
+        kernel[NN//2] = 0
 
         shifted_frequencies = 1/scale * np.concatenate((np.arange(0, NN/2, 1), [0], np.arange(1-NN/2, 0, 1)))
         return kernel, shifted_frequencies
