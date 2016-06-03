@@ -22,7 +22,7 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip numpy matplotlib scipy numba
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pip numpy matplotlib scipy numba pytest-cov
   - source activate test-environment
 
 before_script:
@@ -31,7 +31,7 @@ before_script:
 
 # Run test
 script:
-  - py.test --cov
+  - py.test --cov --cov-report=term-missing
 
 # Calculate coverage
 after_success:
