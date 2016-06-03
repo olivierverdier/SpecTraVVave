@@ -26,6 +26,7 @@ install:
   - source activate test-environment
 
 before_script:
+  - pip install coveralls
   - pip install -r requirements.txt
   - pip install .
 
