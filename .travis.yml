@@ -32,7 +32,7 @@ before_script:
 
 # Run test
 script:
-  - py.test --cov --cov-report=term-missing
+  - py.test --cov=travwave --cov-report=term-missing
 
 # Calculate coverage
 after_success:
