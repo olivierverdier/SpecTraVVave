@@ -57,7 +57,7 @@ class Navigator(object):
         for i in range(N):
             self.step()
 
-    def prepare_step(self, step, p2, p1):
+    def prepare_step(self, p2, p1, step=1.):
         """
         Return the necessary variables to run the solver.
         """
@@ -86,13 +86,13 @@ class Navigator(object):
         Refine using a direction orthogonal to the last two parameter points.
         """
         p2, p1 = self.two_parameter_points(index)
-        p, dir = self.prepare_step(0, p2, p1)
+        p, dir = self.prepare_step(p2, p1, step=0)
         current = self[index]['solution']
         return self.refine(resampling, current, p, dir)
 
     def step(self):
         p2, p1 = self.two_parameter_points(index=-1)
-        pstar, direction = self.prepare_step(1., p2, p1)
+        pstar, direction = self.prepare_step(p2, p1)
         current = self[-1]['solution']
         new, variables, p3 = self.run_solver(current, pstar, direction)
         self._stored_values.append({'solution': new, 'integration constant': variables, 'current': p3, 'previous': p2})
