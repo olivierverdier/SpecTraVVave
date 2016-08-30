@@ -87,7 +87,7 @@ class TestKDV(unittest.TestCase):
         """
         level = self.boundary.level
         npt.assert_allclose(min(self.computed), level, atol=1e-15)
-        
+
 
     @classmethod
     def get_equation_class(self):
@@ -100,7 +100,7 @@ class TestKDV(unittest.TestCase):
         u = identity(xs,us)
         res = (1-c) * u + 3/4*u*u + 1/6*derivative2(xs,us) - B
         return res
-        
+
 
 class TestKDVMean(TestKDV):
     def get_boundary(self):
@@ -145,4 +145,3 @@ class TestKDVSolitonLarge(TestKDVSoliton):
 
     def get_nbsteps(self):
         return 50
-

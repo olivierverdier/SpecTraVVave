@@ -14,10 +14,9 @@ class Kawahara (Equation):
     def compute_kernel(self, k):
         kp = 1
         return 1.0+0.5*kp*k**2 + 1.0/90*k**4
-            
+
     def flux(self, u):
-        return 0.75*u**2  
+        return 0.75*u**2
 
     def flux_prime(self, u):
         return 1.5*u
-

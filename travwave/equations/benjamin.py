@@ -10,9 +10,9 @@ class Benjamin_Ono(Equation):
     def degree(self):
         return 2
 
-    def compute_kernel(self, k):        
+    def compute_kernel(self, k):
         return  1.0 - np.abs(k)
-            
+
     def flux(self, u):
         return 0.5*u*u
 
