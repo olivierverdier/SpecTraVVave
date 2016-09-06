@@ -97,3 +97,20 @@ class TestBenjaminOno(HarnessEquation, unittest.TestCase):
 class TestMBenjaminOno(HarnessEquation, unittest.TestCase):
     def get_equation(self):
         return benjamin.modified_Benjamin_Ono(1)
+
+
+def whitham_kernel_(k):
+    whitham = np.zeros(len(k))
+    for i in range(len(k)):
+        if k[i] == 0:
+            whitham[i] = 1
+        else:
+            whitham[i]  = np.sqrt(1./k[i]*np.tanh(k[i]))
+    return whitham
+
+def test_whitham_refactor():
+    w = whitham.Whitham(1.)
+    ks = np.arange(32, dtype=float)
+    new = w.compute_kernel(ks)
+    old = whitham_kernel_(ks)
+    npt.assert_allclose(new, old)

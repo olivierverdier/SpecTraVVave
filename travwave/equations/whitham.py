@@ -9,13 +9,9 @@ class Whitham(Equation):
     def degree(self):
         return 2
 
-    def compute_kernel(self,k):
-        whitham = np.zeros(len(k))
-        for i in range(len(k)):
-            if k[i] == 0:
-                whitham[i] = 1
-            else:
-                whitham[i]  = np.sqrt(1./k[i]*np.tanh(k[i]))
+    def compute_kernel(self, k):
+        whitham = np.ones_like(k)
+        whitham[1:] = np.sqrt(np.tanh(k[1:])/k[1:])
         return whitham
 
     def flux(self, u):
