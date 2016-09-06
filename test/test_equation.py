@@ -3,101 +3,42 @@
 from __future__ import division
 
 import unittest
+import pytest
 import numpy.testing as npt
 import numpy as np
 
-from travwave.equations import kdv, whitham, benjamin, kawahara
-from travwave.discretization import DiscretizationOperator
+from tools import equations, poly_equations
 
-class HarnessEquation(object):
-    def setUp(self):
-        self.equation = self.get_equation()
-        self.discretization = DiscretizationOperator(self.equation, 8)
 
-    def test_flux(self):
-        """
-        Test that flux_prime works
-        """
-        u = .5
-        eps = 1e-5
-        expected = (self.equation.flux(u+eps) - self.equation.flux(u))/eps
-        computed = self.equation.flux_prime(u)
-        npt.assert_allclose(computed, expected, rtol=1e-4)
+@pytest.fixture(params=equations, ids=repr)
+def equation(request):
+    return request.param
 
-    def test_degree(self):
-        """
-        The degree is correct.
-        """
-        A = 1e10
-        degree = np.log(self.equation.flux(A)/self.equation.flux(1))/np.log(A)
-        npt.assert_allclose(self.equation.degree(), degree)
+@pytest.fixture(params=poly_equations, ids=repr)
+def poly_equation(request):
+    return request.param
 
-    def test_linop(self):
-        """
-        The numba implementation of the linear operator gives the same results as the previous one.
-        """
-        weights = self.discretization.get_weights()
-        f = lambda x: np.cos(np.pi/self.equation.length*x)
-        x = self.discretization.get_nodes()
-        tensor = np.dstack([wk*(f(k*x) * f(k*x).reshape(-1,1)) for k, wk in enumerate(weights)])
-        expected = np.sum(tensor, axis=2)
-        computed = self.discretization.compute_linear_operator()
-        npt.assert_allclose(computed, expected)
+def test_flux(equation):
+    """
+    Test that flux_prime works
+    """
+    u = .5
+    eps = 1e-5
+    expected = (equation.flux(u+eps) - equation.flux(u))/eps
+    computed = equation.flux_prime(u)
+    npt.assert_allclose(computed, expected, rtol=1e-4)
 
-    def test_residual(self):
-        """
-        The discretization residual is equal to the linear operator plus the flux.
-        """
-        parameter = (2.,3.)
-        u = np.random.rand(self.discretization.size)
-        expected = np.dot(self.discretization.compute_shifted_operator(self.discretization.size, parameter), u) + self.equation.flux(u)
-        computed = self.discretization.residual(u, parameter, 0)
-        npt.assert_allclose(computed, expected)
+def test_degree(poly_equation):
+    """
+    The degree is correct.
+    """
+    equation = poly_equation
+    A = 1e10
+    degree = np.log(equation.flux(A)/equation.flux(1))/np.log(A)
+    npt.assert_allclose(equation.degree(), degree)
 
-class TestKDV(HarnessEquation, unittest.TestCase):
-    def get_equation(self):
-        return kdv.KDV(1)
 
-class TestKDV3(HarnessEquation, unittest.TestCase):
-    def get_equation(self):
-        return kdv.KDV3(1)
-
-class TestKDV5(HarnessEquation, unittest.TestCase):
-    def get_equation(self):
-        return kdv.KDV5(1)
-
-class TestWhitham(HarnessEquation, unittest.TestCase):
-    def get_equation(self):
-        return whitham.Whitham(1)
-
-class TestWhitham3(HarnessEquation, unittest.TestCase):
-    def get_equation(self):
-        return whitham.Whitham3(1)
-
-class TestWhitham5(HarnessEquation, unittest.TestCase):
-    def get_equation(self):
-        return whitham.Whitham5(1)
-
-class TestWhithamsqrt(HarnessEquation, unittest.TestCase):
-    def get_equation(self):
-        return whitham.Whithamsqrt(1)
-
-    def test_degree(self):
-        """The flux is not a monomial"""
-        pass
-
-class TestKawahara(HarnessEquation, unittest.TestCase):
-    def get_equation(self):
-        return kawahara.Kawahara(1)
-
-class TestBenjaminOno(HarnessEquation, unittest.TestCase):
-    def get_equation(self):
-        return benjamin.Benjamin_Ono(1)
-
-class TestMBenjaminOno(HarnessEquation, unittest.TestCase):
-    def get_equation(self):
-        return benjamin.modified_Benjamin_Ono(1)
-
+from travwave.equations import whitham
 
 def whitham_kernel_(k):
     whitham = np.zeros(len(k))
