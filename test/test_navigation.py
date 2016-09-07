@@ -19,13 +19,8 @@ class TestDummyNavigation(unittest.TestCase):
         p0 = (0,0)
         p1 = (1,0)
         dp = (p1[0]-p0[0],p1[1]-p0[1])
-        computed = ortho_direction(p0, p1, step=1)
-        expected_pstar = (2, 0)
-        computed_pstar = computed[0]
-        self.assertIsInstance(computed_pstar, tuple, msg="stored parameter is a tuple")
-        npt.assert_allclose(computed_pstar, expected_pstar, err_msg="computed parameters are right")
         expected_direction = (0,1)
-        computed_direction = computed[1]
+        computed_direction = ortho_direction(p0, p1)
         self.assertIsInstance(computed_direction, tuple, msg="direction is a tuple")
         self.assertEqual(computed_direction[0]*dp[0] + computed_direction[1]*dp[1], 0, msg="direction is orthogonal to the line joining the two previous parameter points")
 

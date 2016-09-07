@@ -2,18 +2,14 @@ from __future__ import division
 
 from .discretization import resample
 
-def ortho_direction(p1, p2, step):
+def ortho_direction(p, base):
     """
-    Returns pstar such that
+    Returns the orthogonal direction to (base - p)
         pstar = p2 + step*(p2-p1)
     """
-    dp = (p2[0] - p1[0], p2[1] - p1[1])
-    pstar = (p2[0] + dp[0]*step, p2[1] + dp[1]*step)
-
-    # orthogonal direction
+    dp = (base[0] - p[0], base[1] - p[1])
     direction = (-dp[1], dp[0])
-
-    return pstar, direction
+    return direction
 
 class Navigator(object):
     """
@@ -45,11 +41,11 @@ class Navigator(object):
         variables = [0]
         self._stored_values.append({'solution': resample(current, self.size), 'integration constant': variables, 'parameter': p, 'base': base})
 
-    def compute_direction(self, p1, p2, step):
+    def compute_direction(self, p1, p2):
         """
         Strategy for a new parameter direction search.
         """
-        return ortho_direction(p1, p2, step)
+        return ortho_direction(p1, p2)
 
     def run(self, N):
         """
@@ -57,13 +53,6 @@ class Navigator(object):
         """
         for i in range(N):
             self.step()
-
-    def prepare_step(self, p2, p1, step=1.):
-        """
-        Return the necessary variables to run the solver.
-        """
-        pstar, direction = self.compute_direction(p1, p2, step)
-        return pstar, direction
 
     def two_parameter_points(self, index):
         p2 = self[index]['parameter']
@@ -87,14 +76,14 @@ class Navigator(object):
         Refine using a direction orthogonal to the last two parameter points.
         """
         p2, p1 = self.two_parameter_points(index)
-        p, dir = self.prepare_step(p2, p1, step=0)
+        dir = self.compute_direction(p2, p1)
         current = self[index]['solution']
-        return self.refine(resampling, current, p, dir)
+        return self.refine(resampling, current, p2, dir)
 
     def step(self):
         p = self[-1]['parameter']
         base = self[-1]['base']
-        _, direction = self.compute_direction(p, base, step=0.)
+        direction = self.compute_direction(p, base)
         current = self[-1]['solution']
         new, variables, p_ = self.run_solver(current, base, direction)
         dp = (p_[0] - p[0], p_[1] - p[1])
