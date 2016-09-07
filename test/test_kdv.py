@@ -58,7 +58,7 @@ class TestKDV(unittest.TestCase):
 
         nav = self.nav = bd.navigation
 
-        nav.run(2)
+        nav.run(nb_steps)
         store = nav[-1]
         self.computed, self.B, self.parameter = nav.refine_at(resampling=size)
         self.c = self.parameter[nav.velocity_]
@@ -81,7 +81,7 @@ class TestKDV(unittest.TestCase):
         Correct boundary conditions are enforced in the solution.
         """
         level = self.boundary.level
-        npt.assert_allclose(min(self.computed), level, atol=1e-15)
+        npt.assert_allclose(min(self.computed), level, atol=1e-8)
 
 
     @classmethod
