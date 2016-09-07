@@ -16,9 +16,9 @@ class BifurcationDiagram(object):
     def initialize(self, amplitude=0.01, step=0.005):
         initial_guess = self.discretization.compute_initial_guess(amplitude)
         initial_velocity = self.discretization.bifurcation_velocity()
-        p1 = (initial_velocity, 0)
-        p0 = (initial_velocity, -step)
-        self.navigation.initialize(initial_guess, p1, p0)
+        p0 = (initial_velocity, 0)
+        base = (initial_velocity, step)
+        self.navigation.initialize(initial_guess, p0, base)
 
     def plot_data(self):
         parameters = [result['current'] for result in self.navigation]

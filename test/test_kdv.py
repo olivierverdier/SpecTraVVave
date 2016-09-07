@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from travwave.navigation import Navigator
+from travwave.navigation import Navigator, ortho_direction
 from travwave.solver import Solver
 from travwave.equations import kdv
 from travwave.discretization import Discretization
@@ -57,12 +57,12 @@ class TestKDV(unittest.TestCase):
         nb_steps = self.get_nbsteps()
         nav = Navigator(solver.solve, size=size)
         initial_velocity = self.discretization.bifurcation_velocity()
-        p1 = (initial_velocity, 0)
+        p0 = (initial_velocity, 0)
         epsilon = .1/nb_steps
-        p0 = (initial_velocity, -epsilon)
+        base = (initial_velocity, epsilon)
         initial_guess = self.discretization.compute_initial_guess(epsilon/10)
-        nav.initialize(initial_guess, p1, p0)
-        nav.run(1)
+        nav.initialize(initial_guess, p0, base)
+        nav.run(2)
         self.nav = nav
         store = nav[-1]
         self.B = store['integration constant']
@@ -72,7 +72,7 @@ class TestKDV(unittest.TestCase):
         self.computed = store['solution']
 
     def get_residual_tolerance(self):
-        return 1e-6
+        return 1e-5
 
     def test_residual(self):
         """

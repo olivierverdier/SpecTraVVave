@@ -34,7 +34,7 @@ class TestDummyNavigation(unittest.TestCase):
         self.nav = Navigator(dummy_solver, size=low_size)
         init_size = 50
         x0 = np.ones(init_size)
-        self.nav.initialize(x0, (1.,0), (0.,0))
+        self.nav.initialize(x0, (0.,0), (1.,0))
 
     def test_refine(self):
         sol, v, p_ = self.nav.refine(resampling=20, sol=np.ones(5), p=(1,2), direction=(0,1))
@@ -49,15 +49,10 @@ class TestDummyNavigation(unittest.TestCase):
         self.assertEqual(len(nav), N+1) # Total size is number of steps plus one
         self.assertEqual(len(nav[0]['solution']), nav.size) # Right size of the initialized navigation point
         ## npt.assert_allclose(np.array(points), np.arange(N+1) + x0)
-        for i in range(N):
-            p2 = nav[i]['current']
-            p1_ = nav[i+1]['previous']
-            if len(nav[i]['solution']) == len(nav[i+1]['solution']):
-                self.assertEqual(p2, p1_) # parameter is properly passed at the next stage
 
         py = [a['current'][nav.amplitude_] for a in nav]
         npt.assert_allclose(np.array(py), 0., err_msg="no move in the y direction because of our dummy solver")
-        px = [a['previous'][nav.velocity_] for a in nav]
+        px = [a['current'][nav.velocity_] for a in nav]
         npt.assert_allclose(np.array(px), np.arange(N+1), err_msg="steady move because of step function")
         ## npt.assert_allclose(px, 0., err_msg="steady move because of step function")
         def assign_nav():

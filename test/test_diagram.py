@@ -66,11 +66,11 @@ class TestGeneral(unittest.TestCase):
         nb_steps = self.get_nbsteps()
         nav = Navigator(solver.solve, size=size)
         initial_velocity = self.discretization.bifurcation_velocity()
-        p1 = (initial_velocity, 0)
+        p0 = (initial_velocity, 0)
         epsilon = .1/nb_steps
-        p0 = (initial_velocity, -epsilon)
+        base = (initial_velocity, epsilon)
         initial_guess = self.discretization.compute_initial_guess(epsilon/10)
-        nav.initialize(initial_guess, p1, p0)
+        nav.initialize(initial_guess, p0, base)
         nav.run(1)
         self.nav = nav
         store = nav[-1]
