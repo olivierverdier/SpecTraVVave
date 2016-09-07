@@ -8,10 +8,11 @@ def ortho_direction(p1, p2, step):
         pstar = p2 + step*(p2-p1)
     """
     dp = (p2[0] - p1[0], p2[1] - p1[1])
+    pstar = (p2[0] + dp[0]*step, p2[1] + dp[1]*step)
+
     # orthogonal direction
     direction = (-dp[1], dp[0])
 
-    pstar = (p2[0] + dp[0]*step, p2[1] + dp[1]*step)
     return pstar, direction
 
 class Navigator(object):
