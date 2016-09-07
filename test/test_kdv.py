@@ -6,11 +6,9 @@ import unittest
 
 import numpy as np
 
-from travwave.navigation import Navigator, ortho_direction
-from travwave.solver import Solver
 from travwave.equations import kdv
-from travwave.discretization import Discretization
 from travwave.boundary import Minimum, Mean, Const
+from travwave.diagram import BifurcationDiagram
 
 import numpy.testing as npt
 
@@ -51,25 +49,22 @@ class TestKDV(unittest.TestCase):
         size = self.get_size()
         length = self.get_length()
         self.equation = self.get_equation_class()(length)
-        self.discretization = Discretization(self.equation, size)
         self.boundary = self.get_boundary()
-        solver = Solver(self.discretization, self.boundary)
         nb_steps = self.get_nbsteps()
-        nav = Navigator(solver.solve, size=size)
-        initial_velocity = self.discretization.bifurcation_velocity()
-        p0 = (initial_velocity, 0)
         epsilon = .1/nb_steps
-        base = (initial_velocity, epsilon)
-        initial_guess = self.discretization.compute_initial_guess(epsilon/10)
-        nav.initialize(initial_guess, p0, base)
+
+        bd = BifurcationDiagram(equation=self.equation, boundary_condition=self.boundary)
+        bd.initialize(amplitude=epsilon/10, step=epsilon)
+
+        nav = self.nav = bd.navigation
+
         nav.run(2)
-        self.nav = nav
         store = nav[-1]
-        self.B = store['integration constant']
-        self.c = store['parameter'][nav.velocity_]
-        self.amplitude = store['parameter'][nav.amplitude_]
-        self.xs = self.discretization.get_nodes()
-        self.computed = store['solution']
+        self.computed, self.B, self.parameter = nav.refine_at(resampling=size)
+        self.c = self.parameter[nav.velocity_]
+        self.amplitude = self.parameter[nav.amplitude_]
+
+        self.xs = bd.discretization.get_nodes()
 
     def get_residual_tolerance(self):
         return 1e-5
