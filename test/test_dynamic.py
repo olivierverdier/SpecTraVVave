@@ -21,7 +21,7 @@ class TestDynamic(unittest.TestCase):
         bd.navigation.run(10)
 
         u = bd.navigation[-1]['solution']
-        velocity = bd.navigation[-1]['current'][bd.navigation.velocity_]
+        velocity = bd.navigation[-1]['parameter'][bd.navigation.velocity_]
         dyn = self.get_dynamic_class()(equation, u, velocity)
         uu = dyn.mirror()
         t_wave = dyn.evolution(solution = uu, nb_steps=int(1e2), periods = 1)

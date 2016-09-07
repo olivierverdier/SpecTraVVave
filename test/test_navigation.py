@@ -50,9 +50,9 @@ class TestDummyNavigation(unittest.TestCase):
         self.assertEqual(len(nav[0]['solution']), nav.size) # Right size of the initialized navigation point
         ## npt.assert_allclose(np.array(points), np.arange(N+1) + x0)
 
-        py = [a['current'][nav.amplitude_] for a in nav]
+        py = [a['parameter'][nav.amplitude_] for a in nav]
         npt.assert_allclose(np.array(py), 0., err_msg="no move in the y direction because of our dummy solver")
-        px = [a['current'][nav.velocity_] for a in nav]
+        px = [a['parameter'][nav.velocity_] for a in nav]
         npt.assert_allclose(np.array(px), np.arange(N+1), err_msg="steady move because of step function")
         ## npt.assert_allclose(px, 0., err_msg="steady move because of step function")
         def assign_nav():

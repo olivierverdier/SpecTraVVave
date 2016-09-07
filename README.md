@@ -42,7 +42,7 @@ bd.navigation.run(50)
 
 Let us see what the amplitude reached is:
 ```
-print('Amplitude = ', bd.navigation[-1]['current'][bd.navigation.amplitude_])
+print('Amplitude = ', bd.navigation[-1]['parameter'][bd.navigation.amplitude_])
 ```
 
 We plot the current computed solution, at coarse resolution:

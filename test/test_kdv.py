@@ -66,8 +66,8 @@ class TestKDV(unittest.TestCase):
         self.nav = nav
         store = nav[-1]
         self.B = store['integration constant']
-        self.c = store['current'][nav.velocity_]
-        self.amplitude = store['current'][nav.amplitude_]
+        self.c = store['parameter'][nav.velocity_]
+        self.amplitude = store['parameter'][nav.amplitude_]
         self.xs = self.discretization.get_nodes()
         self.computed = store['solution']
 

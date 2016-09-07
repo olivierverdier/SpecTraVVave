@@ -43,7 +43,7 @@ class Navigator(object):
         """
         self._stored_values = []
         variables = [0]
-        self._stored_values.append({'solution': resample(current, self.size), 'integration constant': variables, 'current': p, 'base': base})
+        self._stored_values.append({'solution': resample(current, self.size), 'integration constant': variables, 'parameter': p, 'base': base})
 
     def compute_direction(self, p1, p2, step):
         """
@@ -66,8 +66,8 @@ class Navigator(object):
         return pstar, direction
 
     def two_parameter_points(self, index):
-        p2 = self[index]['current']
-        p1 = self[index-1]['current']
+        p2 = self[index]['parameter']
+        p1 = self[index-1]['parameter']
         return p2, p1
 
     def run_solver(self, current, pstar, direction):
@@ -92,12 +92,12 @@ class Navigator(object):
         return self.refine(resampling, current, p, dir)
 
     def step(self):
-        p = self[-1]['current']
+        p = self[-1]['parameter']
         base = self[-1]['base']
         _, direction = self.compute_direction(p, base, step=0.)
         current = self[-1]['solution']
         new, variables, p_ = self.run_solver(current, base, direction)
         dp = (p_[0] - p[0], p_[1] - p[1])
         pstar = (p_[0] + dp[0], p_[1] + dp[1])
-        self._stored_values.append({'solution': new, 'integration constant': variables, 'current': p_, 'base': pstar})
+        self._stored_values.append({'solution': new, 'integration constant': variables, 'parameter': p_, 'base': pstar})
 

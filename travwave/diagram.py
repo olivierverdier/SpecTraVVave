@@ -21,7 +21,7 @@ class BifurcationDiagram(object):
         self.navigation.initialize(initial_guess, p0, base)
 
     def plot_data(self):
-        parameters = [result['current'] for result in self.navigation]
+        parameters = [result['parameter'] for result in self.navigation]
         aparameters = np.array(parameters)
         return aparameters.T
 
