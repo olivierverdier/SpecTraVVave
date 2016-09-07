@@ -34,6 +34,3 @@ class TestGeneral(unittest.TestCase):
         nav.run(1)
         print(nav[1])
 
-if __name__ == '__main__':
-    unittest.main()
-#
