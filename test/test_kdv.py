@@ -42,11 +42,8 @@ class TestKDV(unittest.TestCase):
     def get_nbsteps(self):
         return 1
 
-    def get_size(self):
-        return 128
-
     def setUp(self):
-        size = self.get_size()
+        size = 128
         length = self.get_length()
         self.equation = self.get_equation_class()(length)
         self.boundary = self.get_boundary()
@@ -130,10 +127,7 @@ class TestKDVSoliton(TestKDV):
         expected = soliton(self.amplitude, self.xs)
         npt.assert_allclose(self.computed, expected, atol=1e-3)
 
-@unittest.skip("Takes too long")
 class TestKDVSolitonLarge(TestKDVSoliton):
-    def get_size(self):
-        return 32
 
     def get_length(self):
         return 75
