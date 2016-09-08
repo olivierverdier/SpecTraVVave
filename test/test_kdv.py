@@ -127,6 +127,12 @@ class TestKDVSoliton(TestKDV):
         expected = soliton(self.amplitude, self.xs)
         npt.assert_allclose(self.computed, expected, atol=1e-3)
 
+    def test_diagram(self):
+        """
+        The theoretical relation between a and c is a = 2(c-1)
+        """
+        npt.assert_allclose(self.amplitude, 2*(self.c - 1), rtol=1e-2)
+
 class TestKDVSolitonLarge(TestKDVSoliton):
 
     def get_length(self):
