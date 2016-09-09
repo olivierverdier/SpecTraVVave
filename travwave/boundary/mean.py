@@ -9,7 +9,7 @@ class Mean(Boundary):
     of the solution wave is zero.
     """
     def enforce(self, wave, variables, parameters):
-        return np.hstack([sum(wave) - self.level])
+        return np.hstack([np.sum(wave) - self.level])
 
     def variables_num(self):
         return 1
