@@ -33,8 +33,7 @@ class BifurcationDiagram(object):
 
     def plot_solution(self, solution):
         size = len(solution)
-        self.discretization.size = size
-        nodes = self.discretization.get_nodes()
+        nodes = discretization.get_nodes(size, self.discretization.equation.length)
         plt.plot(nodes, solution)
         plt.xlabel('x')
         plt.ylabel('Surface Elevation')
