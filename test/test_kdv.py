@@ -12,8 +12,6 @@ from travwave.diagram import BifurcationDiagram
 
 import numpy.testing as npt
 
-import matplotlib.pyplot as plt
-
 def sech(x):
     return 1/np.cosh(x)
 
