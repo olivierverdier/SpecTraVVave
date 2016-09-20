@@ -48,7 +48,7 @@ class TestKDV(unittest.TestCase):
         self.equation = self.get_equation_class()(length)
         self.boundary = self.get_boundary()
         nb_steps = self.get_nbsteps()
-        epsilon = .1/nb_steps
+        epsilon = .01
 
         bd = BifurcationDiagram(equation=self.equation, boundary_condition=self.boundary)
         bd.initialize(amplitude=epsilon/10, step=epsilon)
@@ -64,7 +64,7 @@ class TestKDV(unittest.TestCase):
         self.xs = bd.discretization.get_nodes()
 
     def get_residual_tolerance(self):
-        return 1e-5
+        return 1e-4
 
     def test_residual(self):
         """
@@ -78,7 +78,7 @@ class TestKDV(unittest.TestCase):
         Correct boundary conditions are enforced in the solution.
         """
         level = self.boundary.level
-        npt.assert_allclose(min(self.computed), level, atol=1e-8)
+        npt.assert_allclose(min(self.computed), level, atol=1e-7)
 
 
     @classmethod
@@ -115,7 +115,7 @@ class TestKDVSoliton(TestKDV):
         return 10
 
     def get_residual_tolerance(self):
-        return 1e-4
+        return 1e-3
 
     def get_boundary(self):
         return Minimum(0)
@@ -125,13 +125,13 @@ class TestKDVSoliton(TestKDV):
         With a sufficiently great length, the travelling wave is close to a soliton.
         """
         expected = soliton(self.amplitude, self.xs)
-        npt.assert_allclose(self.computed, expected, atol=1e-3)
+        npt.assert_allclose(self.computed, expected, atol=1e-2)
 
     def test_diagram(self):
         """
         The theoretical relation between a and c is a = 2(c-1)
         """
-        npt.assert_allclose(self.amplitude, 2*(self.c - 1), rtol=1e-2)
+        npt.assert_allclose(self.amplitude, 2*(self.c - 1), rtol=1e-1)
 
 class TestKDVSolitonLarge(TestKDVSoliton):
 
@@ -139,4 +139,4 @@ class TestKDVSolitonLarge(TestKDVSoliton):
         return 75
 
     def get_nbsteps(self):
-        return 50
+        return 30
