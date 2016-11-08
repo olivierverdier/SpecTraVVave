@@ -4,6 +4,8 @@ from __future__ import division
 
 import unittest
 
+import backend
+
 import numpy as np
 
 from travwave.equations import kdv

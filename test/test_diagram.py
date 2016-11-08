@@ -1,5 +1,7 @@
 from __future__ import division
 
+import backend
+
 import unittest
 
 from travwave.diagram import BifurcationDiagram

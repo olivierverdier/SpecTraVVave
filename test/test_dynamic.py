@@ -5,6 +5,8 @@ from __future__ import division
 import unittest
 import numpy.testing as npt
 
+import backend
+
 from travwave.equations import *
 from travwave.boundary import *
 from travwave.dynamic import *

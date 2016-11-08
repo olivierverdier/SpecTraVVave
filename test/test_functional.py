@@ -4,6 +4,8 @@ from __future__ import division
 
 import unittest
 
+import backend
+
 from travwave.equations import *
 from travwave.boundary import *
 from travwave.diagram import BifurcationDiagram
