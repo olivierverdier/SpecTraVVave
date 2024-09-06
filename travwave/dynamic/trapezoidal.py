@@ -52,7 +52,7 @@ class Trapezoidal_rule(object):
 
         m = 0.5 * dt * kernel
         d1 = (1-m)/(1+m)
-        d1[NN/2] = 0
+        d1[NN//2] = 0
         d2 = -0.5 * 1j * dt * shifted_frequencies/(1+m)
 
         eps = 1e-10
