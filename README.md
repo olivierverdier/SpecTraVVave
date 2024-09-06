@@ -1,8 +1,9 @@
 # SpectraVVave: Compute traveling waves
 
-[![Build Status](https://img.shields.io/travis/olivierverdier/SpecTraVVave/master.svg)](https://travis-ci.org/olivierverdier/SpecTraVVave)
-[![Coverage Status](https://img.shields.io/coveralls/olivierverdier/SpecTraVVave/master.svg)](https://coveralls.io/r/olivierverdier/SpecTraVVave?branch=master)
-![Python version](https://img.shields.io/badge/python-2.7,_3.4,_3.5-blue.svg?style=flat-square)
+[![Build Status](https://github.com/olivierverdier/SpecTraVVave/actions/workflows/python_package.yml/badge.svg?branch=main)](https://github.com/olivierverdier/SpecTraVVave/actions/workflows/python_package.yml?query=branch%3Amain)
+![Python version](https://img.shields.io/badge/Python-3.9%20|%203.10%20|%203.11%20|%203.12-blue.svg?logo=python&logoColor=gold)
+[![codecov](https://codecov.io/github/olivierverdier/SpecTraVVave/graph/badge.svg?token=Ea4XsTXw6A)](https://codecov.io/github/olivierverdier/SpecTraVVave)
+
 
 ## Getting started
 

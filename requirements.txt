@@ -1,1 +1,5 @@
+numpy
+scipy
+numba
+matplotlib
 -e git+https://github.com/olivierverdier/newton#egg=newton
