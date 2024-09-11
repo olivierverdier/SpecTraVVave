@@ -50,7 +50,7 @@ We plot the current computed solution, at coarse resolution:
 ```python
 bd.plot_solution(bd.navigation[-1]['solution'])
 ```
-![Refined solution](https://github.com/olivierverdier/SpecTraVVave/raw/master/coarse.png)
+![Refined solution](https://github.com/olivierverdier/SpecTraVVave/raw/main/coarse.png)
 
 We refine to get a higher resolution travelling wave:
 ```python
@@ -63,7 +63,7 @@ and we plot that refined solution:
 bd.plot_solution(refined)
 ```
 
-![Refined solution](https://github.com/olivierverdier/SpecTraVVave/raw/master/wave.png)
+![Refined solution](https://github.com/olivierverdier/SpecTraVVave/raw/main/wave.png)
 
 We plot the bifurcation diagram, as well as the last refined parameter:
 ```python
@@ -71,4 +71,4 @@ bd.nplot_diagram()
 plt.plot(parameter[0], parameter[1], 'or')
 ```
 
-![Bifurcation Diagram](https://github.com/olivierverdier/SpecTraVVave/raw/master/diagram.png)
+![Bifurcation Diagram](https://github.com/olivierverdier/SpecTraVVave/raw/main/diagram.png)
